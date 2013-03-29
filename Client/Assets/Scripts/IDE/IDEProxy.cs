@@ -1,15 +1,13 @@
 using UnityEngine;
 using System.Collections;
 
-public class IDEProxy : MonoBehaviour {
-
-	// Use this for initialization
-	void Start () {
+public class IDEProxy {
 	
+	public void init(){
+		
 	}
 	
-	// Update is called once per frame
-	void Update () {
-	
+	public void getRegisterRequest(int startNum, int endNum){
+		
 	}
 }
