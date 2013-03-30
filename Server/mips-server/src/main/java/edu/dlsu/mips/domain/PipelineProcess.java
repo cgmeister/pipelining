@@ -3,14 +3,14 @@ package edu.dlsu.mips.domain;
 public class PipelineProcess {
 
 	private PipelineStage pipelineStage;
-	private Opcode opcode;
+	private InstructionSet opcode;
 
-	private PipelineProcess(Opcode opcode) {
+	private PipelineProcess(InstructionSet opcode) {
 		this.pipelineStage = PipelineStage.IF;
 		this.opcode = opcode;
 	}
 
-	public static PipelineProcess newInstance(Opcode opcode) {
+	public static PipelineProcess newInstance(InstructionSet opcode) {
 		return new PipelineProcess(opcode);
 	}
 	
@@ -26,11 +26,11 @@ public class PipelineProcess {
 		}
 	}
 
-	public Opcode getOpcode() {
+	public InstructionSet getOpcode() {
 		return opcode;
 	}
 
-	public void setOpcode(Opcode opcode) {
+	public void setOpcode(InstructionSet opcode) {
 		this.opcode = opcode;
 	}
 

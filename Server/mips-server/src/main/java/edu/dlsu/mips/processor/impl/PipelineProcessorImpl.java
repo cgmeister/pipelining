@@ -2,24 +2,27 @@ package edu.dlsu.mips.processor.impl;
 
 import edu.dlsu.mips.domain.Instruction;
 import edu.dlsu.mips.domain.MIPSRegisters;
-import edu.dlsu.mips.domain.Opcode;
+import edu.dlsu.mips.domain.InstructionSet;
 import edu.dlsu.mips.domain.PipelineProcess;
 import edu.dlsu.mips.domain.PipelineStage;
 import edu.dlsu.mips.exception.JumpAddressException;
+import edu.dlsu.mips.exception.OpcodeNotSupportedException;
 import edu.dlsu.mips.exception.OperandException;
 import edu.dlsu.mips.exception.RegisterAddressOverFlowException;
 import edu.dlsu.mips.exception.StorageInitializationException;
 import edu.dlsu.mips.exception.TrapException;
 import edu.dlsu.mips.processor.PipelineProcessor;
 import edu.dlsu.mips.util.InstructionRunner;
-import edu.dlsu.mips.util.OpcodeBuilder;
+import edu.dlsu.mips.util.InstructionSetBuilder;
 import edu.dlsu.mips.util.SystemUtils;
 
 public class PipelineProcessorImpl implements PipelineProcessor {
 
 	@Override
 	public void processInstruction(Instruction instruction)
-			throws JumpAddressException, OperandException, StorageInitializationException, RegisterAddressOverFlowException, TrapException {
+			throws JumpAddressException, OperandException, 
+			StorageInitializationException, RegisterAddressOverFlowException,
+			TrapException, OpcodeNotSupportedException {
 		incrementSystemClock();
 		processWB();
 		processMem();
@@ -35,12 +38,12 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 	private void processWB() {
 		PipelineProcess wbProcess = SystemUtils.retrieveActiveProcess(PipelineStage.WB);
 		SystemUtils.removeFromActiveProcess(PipelineStage.WB);
-		Opcode opcode = wbProcess.getOpcode();
+		InstructionSet opcode = wbProcess.getOpcode();
 	}
 	
 	private void processMem() {
 		PipelineProcess memProcess = SystemUtils.retrieveActiveProcess(PipelineStage.MEM);
-		Opcode opcode = memProcess.getOpcode();
+		InstructionSet opcode = memProcess.getOpcode();
 		if (opcode.getName().equals("LD")) {
 			
 		} else if (opcode.getName().equals("SD")) {
@@ -53,7 +56,7 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 	
 	private void processExe() throws StorageInitializationException, RegisterAddressOverFlowException, TrapException {
 		PipelineProcess exeProcess = SystemUtils.retrieveActiveProcess(PipelineStage.EXE);
-		Opcode opcode = exeProcess.getOpcode();
+		InstructionSet opcode = exeProcess.getOpcode();
 		String opcodeString = opcode.getName();
 		if (opcodeString.equals("DADD")) {
 			InstructionRunner.DADD(opcode.getRs(), opcode.getRt());
@@ -87,14 +90,14 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 		idProcess.incrementStage();
 	}
 	
-	private void processIF(Instruction instruction) throws JumpAddressException, OperandException {
+	private void processIF(Instruction instruction) throws JumpAddressException, OperandException, OpcodeNotSupportedException {
 		PipelineProcess ifProcess = buildPipelineProcess(instruction);
 		SystemUtils.addActiveProcess(ifProcess);
 		SystemUtils.addToAllProcess(ifProcess);
 		MIPSRegisters.IFIDIR = ifProcess.getOpcode().getBinaryInstruction();
 		String nextPC = incrementProgramCounter();
 		MIPSRegisters.IFIDNPC = nextPC;
-		Opcode opcode = ifProcess.getOpcode();
+		InstructionSet opcode = ifProcess.getOpcode();
 		if (opcode.getName().equals("J")) {
 			MIPSRegisters.PC = retrieveJumpInstruction(opcode);
 		} else if (opcode.getName().equals("BNEZ")) {
@@ -112,13 +115,13 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 		return null;
 	}
 	
-	private String retrieveJumpInstruction(Opcode opcode) {
+	private String retrieveJumpInstruction(InstructionSet opcode) {
 		
 		return null;
 	}
 	
-	private PipelineProcess buildPipelineProcess(Instruction instruction) throws JumpAddressException, OperandException {
-		Opcode opcode = OpcodeBuilder.buildOpcode(instruction.getInstruction());
+	private PipelineProcess buildPipelineProcess(Instruction instruction) throws JumpAddressException, OperandException, OpcodeNotSupportedException {
+		InstructionSet opcode = InstructionSetBuilder.buildOpcode(instruction.getInstruction());
 		return PipelineProcess.newInstance(opcode);
 	}
 

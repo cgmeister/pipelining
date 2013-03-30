@@ -1,6 +1,6 @@
 package edu.dlsu.mips.domain;
 
-public class Opcode {
+public class InstructionSet {
 
 	private String type = null;
 	private String binaryOpcode = null;
@@ -14,6 +14,7 @@ public class Opcode {
 	private String hexInstruction = null;
 	private String binaryInstruction = null;
 	private String instruction = "";
+	private String opcode = "";
 
 	public String getHexInstruction() {
 		return hexInstruction;
@@ -109,6 +110,14 @@ public class Opcode {
 
 	public void setFunc(String func) {
 		this.func = func;
+	}
+
+	public String getOpcode() {
+		return opcode;
+	}
+
+	public void setOpcode(String opcode) {
+		this.opcode = opcode;
 	}
 
 }

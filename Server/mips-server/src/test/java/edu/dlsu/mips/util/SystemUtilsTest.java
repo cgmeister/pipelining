@@ -3,7 +3,7 @@ package edu.dlsu.mips.util;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import edu.dlsu.mips.domain.Opcode;
+import edu.dlsu.mips.domain.InstructionSet;
 import edu.dlsu.mips.domain.PipelineProcess;
 
 public class SystemUtilsTest {
@@ -11,7 +11,7 @@ public class SystemUtilsTest {
 	@Test
 	@Ignore
 	public void shouldRetrieve() {
-		Opcode opcode = new Opcode();
+		InstructionSet opcode = new InstructionSet();
 		PipelineProcess ifProcess = PipelineProcess.newInstance(opcode);
 		SystemUtils.addActiveProcess(ifProcess);
 		PipelineProcess idProcess = PipelineProcess.newInstance(opcode);

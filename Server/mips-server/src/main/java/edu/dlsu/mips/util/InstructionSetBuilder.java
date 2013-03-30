@@ -4,12 +4,13 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.dlsu.mips.domain.Opcode;
+import edu.dlsu.mips.domain.InstructionSet;
 import edu.dlsu.mips.exception.BitLengthException;
 import edu.dlsu.mips.exception.JumpAddressException;
+import edu.dlsu.mips.exception.OpcodeNotSupportedException;
 import edu.dlsu.mips.exception.OperandException;
 
-public class OpcodeBuilder {
+public class InstructionSetBuilder {
 
 	public static Map<String, String> opcodeType = null;
 	public static Map<String, Integer> opcodeValue = null;
@@ -52,26 +53,29 @@ public class OpcodeBuilder {
 		opcodeSubValue.put("AND", 36);
 	}
 
-	public static Opcode buildOpcode(String instruction)
-			throws JumpAddressException, OperandException {
+	public static InstructionSet buildOpcode(String instruction)
+			throws JumpAddressException, OperandException, OpcodeNotSupportedException {
 		String[] tokens = instruction.split(" ");
-		Opcode opcode = new Opcode();
-		opcode.setInstruction(instruction);
+		InstructionSet instructionSet = new InstructionSet();
+		instructionSet.setInstruction(instruction);
 		String type = opcodeType.get(tokens[0]);
-		opcode.setType(type);
+		instructionSet.setOpcode(tokens[0]);
+		instructionSet.setType(type);
 		if (type.equals("R")) {
-			decodeRType(opcode);
+			decodeRType(instructionSet);
 		} else if (type.equals("I")) {
-			decodeIType(opcode);
+			decodeIType(instructionSet);
 		} else if (type.equals("J")) {
-			decodeJType(opcode);
+			decodeJType(instructionSet);
+		}else{
+			throw new OpcodeNotSupportedException();
 		}
-		return opcode;
+		return instructionSet;
 	}
 
-	private static void decodeJType(Opcode opcode) throws JumpAddressException,
+	private static void decodeJType(InstructionSet instructionSet) throws JumpAddressException,
 			OperandException {
-		String instruction = opcode.getInstruction();
+		String instruction = instructionSet.getInstruction();
 		String[] tokens = instruction.split(" ");
 		int nameIntValue = Integer.parseInt(tokens[1], 16);
 		if (nameIntValue % 4 != 0) {
@@ -83,12 +87,12 @@ public class OpcodeBuilder {
 			String opcodeBitString = BitStringUtils
 					.doUnsignedBinarySignExtention(opcodeValue.get(tokens[0]),
 							6);
-			opcode.setBinaryOpcode(opcodeBitString);
+			instructionSet.setBinaryOpcode(opcodeBitString);
 			String nameBitString = BitStringUtils
 					.doUnsignedBinarySignExtention(nameIntValue, 26);
-			opcode.setName(nameBitString);
+			instructionSet.setName(nameBitString);
 			String binaryOpcode = opcodeBitString + nameBitString;
-			opcode.setBinaryInstruction(binaryOpcode);
+			instructionSet.setBinaryInstruction(binaryOpcode);
 			BigInteger binaryIntVal = new BigInteger(binaryOpcode, 2);
 			String hexOpcode = Long.toHexString(binaryIntVal.longValue());
 			try {
@@ -98,7 +102,7 @@ public class OpcodeBuilder {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			opcode.setHexInstruction(hexOpcode);
+			instructionSet.setHexInstruction(hexOpcode);
 			// System.out.println(opcode.getBinaryOpCode());
 			// System.out.println(opcode.getHexOpCode());
 
@@ -106,8 +110,8 @@ public class OpcodeBuilder {
 
 	}
 
-	private static void decodeRType(Opcode opcode) throws OperandException {
-		String instruction = opcode.getInstruction();
+	private static void decodeRType(InstructionSet instructionSet) throws OperandException {
+		String instruction = instructionSet.getInstruction();
 		String[] tokens = instruction.split(" ");
 		String[] operands = new String[3];
 		int operandCount = 0;
@@ -139,23 +143,23 @@ public class OpcodeBuilder {
 		int funcIntVal = opcodeSubValue.get(tokens[0]);
 		String opcodeBitString = BitStringUtils.doUnsignedBinarySignExtention(
 				opcodeIntValue, 6);
-		opcode.setBinaryOpcode(opcodeBitString);
+		instructionSet.setBinaryOpcode(opcodeBitString);
 		String rsBitString = BitStringUtils.doUnsignedBinarySignExtention(
 				rsAddressIntVal, 5);
-		opcode.setRs(rsBitString);
+		instructionSet.setRs(rsBitString);
 		String rtBitString = BitStringUtils.doUnsignedBinarySignExtention(
 				rtAddressIntVal, 5);
-		opcode.setRt(rtBitString);
+		instructionSet.setRt(rtBitString);
 		String rdBitString = BitStringUtils.doUnsignedBinarySignExtention(
 				rdAddressIntVal, 5);
-		opcode.setRd(rdBitString);
-		String zero = opcode.getZero();
+		instructionSet.setRd(rdBitString);
+		String zero = instructionSet.getZero();
 		String funcBitString = BitStringUtils.doUnsignedBinarySignExtention(
 				funcIntVal, 6);
-		opcode.setFunc(funcBitString);
+		instructionSet.setFunc(funcBitString);
 		String binaryOpcode = opcodeBitString + rsBitString + rtBitString
 				+ rdBitString + zero + funcBitString;
-		opcode.setBinaryInstruction(binaryOpcode);
+		instructionSet.setBinaryInstruction(binaryOpcode);
 		BigInteger binaryIntVal = new BigInteger(binaryOpcode, 2);
 		String hexOpcode = Long.toHexString(binaryIntVal.longValue());
 		try {
@@ -165,14 +169,14 @@ public class OpcodeBuilder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		opcode.setHexInstruction(hexOpcode);
+		instructionSet.setHexInstruction(hexOpcode);
 		// System.out.println(opcode.getBinaryOpCode());
 		// System.out.println(opcode.getHexOpCode());
 
 	}
 
-	private static void decodeIType(Opcode opcode) throws OperandException {
-		String instruction = opcode.getInstruction();
+	private static void decodeIType(InstructionSet instructionSet) throws OperandException {
+		String instruction = instructionSet.getInstruction();
 		String[] tokens = instruction.split(" ");
 		String keyword = tokens[0];
 		int opcodeIntValue = opcodeValue.get(tokens[0]);
@@ -205,18 +209,18 @@ public class OpcodeBuilder {
 			int immIntVal = (targetPc - nextPc) / 4;
 			String opcodeBitString = BitStringUtils
 					.doUnsignedBinarySignExtention(opcodeIntValue, 6);
-			opcode.setBinaryOpcode(opcodeBitString);
+			instructionSet.setBinaryOpcode(opcodeBitString);
 			String rsBitString = BitStringUtils.doUnsignedBinarySignExtention(
 					rsAddressIntVal, 5);
-			opcode.setRs(rsBitString);
+			instructionSet.setRs(rsBitString);
 			String rdBitString = "00000";
-			opcode.setRd(rdBitString);
+			instructionSet.setRd(rdBitString);
 			String immBitString = BitStringUtils.doUnsignedBinarySignExtention(
 					immIntVal, 16);
-			opcode.setImm(immBitString);
+			instructionSet.setImm(immBitString);
 			String binaryOpcode = opcodeBitString + rsBitString + rdBitString
 					+ immBitString;
-			opcode.setBinaryInstruction(binaryOpcode);
+			instructionSet.setBinaryInstruction(binaryOpcode);
 			BigInteger binaryIntVal = new BigInteger(binaryOpcode, 2);
 			String hexOpcode = Long.toHexString(binaryIntVal.longValue());
 			try {
@@ -226,7 +230,7 @@ public class OpcodeBuilder {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			opcode.setHexInstruction(hexOpcode);
+			instructionSet.setHexInstruction(hexOpcode);
 			// System.out.println(opcode.getBinaryOpCode());
 			// System.out.println(opcode.getHexOpCode());
 
@@ -287,19 +291,19 @@ public class OpcodeBuilder {
 			int immIntVal = Integer.parseInt(operands[2], 16);
 			String opcodeBitString = BitStringUtils
 					.doUnsignedBinarySignExtention(opcodeIntValue, 6);
-			opcode.setBinaryOpcode(opcodeBitString);
+			instructionSet.setBinaryOpcode(opcodeBitString);
 			String rsBitString = BitStringUtils.doUnsignedBinarySignExtention(
 					rsAddressIntVal, 5);
-			opcode.setRs(rsBitString);
+			instructionSet.setRs(rsBitString);
 			String rdBitString = BitStringUtils.doUnsignedBinarySignExtention(
 					rdAddressIntVal, 5);
-			opcode.setRd(rdBitString);
+			instructionSet.setRd(rdBitString);
 			String immBitString = BitStringUtils.doUnsignedBinarySignExtention(
 					immIntVal, 16);
-			opcode.setImm(immBitString);
+			instructionSet.setImm(immBitString);
 			String binaryOpcode = opcodeBitString + rsBitString + rdBitString
 					+ immBitString;
-			opcode.setBinaryInstruction(binaryOpcode);
+			instructionSet.setBinaryInstruction(binaryOpcode);
 			BigInteger binaryIntVal = new BigInteger(binaryOpcode, 2);
 			String hexOpcode = Long.toHexString(binaryIntVal.longValue());
 			try {
@@ -309,7 +313,7 @@ public class OpcodeBuilder {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			opcode.setHexInstruction(hexOpcode);
+			instructionSet.setHexInstruction(hexOpcode);
 
 			// System.out.println(opcode.getBinaryOpCode());
 			// System.out.println(opcode.getHexOpCode());
@@ -350,19 +354,19 @@ public class OpcodeBuilder {
 					operands[2].substring(1, operands[2].length()), 16);
 			String opcodeBitString = BitStringUtils
 					.doUnsignedBinarySignExtention(opcodeIntValue, 6);
-			opcode.setBinaryOpcode(opcodeBitString);
+			instructionSet.setBinaryOpcode(opcodeBitString);
 			String rsBitString = BitStringUtils.doUnsignedBinarySignExtention(
 					rsAddressIntVal, 5);
-			opcode.setRs(rsBitString);
+			instructionSet.setRs(rsBitString);
 			String rdBitString = BitStringUtils.doUnsignedBinarySignExtention(
 					rdAddressIntVal, 5);
-			opcode.setRd(rdBitString);
+			instructionSet.setRd(rdBitString);
 			String immBitString = BitStringUtils.doUnsignedBinarySignExtention(
 					immIntVal, 16);
-			opcode.setImm(immBitString);
+			instructionSet.setImm(immBitString);
 			String binaryOpcode = opcodeBitString + rsBitString + rdBitString
 					+ immBitString;
-			opcode.setBinaryInstruction(binaryOpcode);
+			instructionSet.setBinaryInstruction(binaryOpcode);
 			BigInteger binaryIntVal = new BigInteger(binaryOpcode, 2);
 			String hexOpcode = Long.toHexString(binaryIntVal.longValue());
 			try {
@@ -372,7 +376,7 @@ public class OpcodeBuilder {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			opcode.setHexInstruction(hexOpcode);
+			instructionSet.setHexInstruction(hexOpcode);
 
 		}
 		// System.out.println(opcode.getBinaryOpCode());
