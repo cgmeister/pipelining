@@ -30,6 +30,10 @@ public class BitStringUtilsTest extends TestCase {
 		assertEquals("00000000", BitStringUtils.shiftLeft("00000011", 21));
 		assertEquals("00000000", BitStringUtils.shiftRight("01100000", 11));
 	}
+	
+	public void testIncrementPc(){
+		assertEquals("1100", BitStringUtils.incrementPc("1000"));
+	}
 
 
 }
