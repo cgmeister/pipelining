@@ -185,11 +185,6 @@ public class BitStringUtils {
 		return finalBitString;
 		
 	}
-	
-	public static String incrementPc(String currentPc){
-		int pcIntVal = Integer.parseInt(currentPc,2);
-		pcIntVal += 4;
-		return Integer.toBinaryString(pcIntVal);
-	}
+
 
 }

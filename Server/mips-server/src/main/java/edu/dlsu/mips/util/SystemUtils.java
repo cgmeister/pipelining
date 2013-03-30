@@ -39,5 +39,12 @@ public class SystemUtils {
 		}
 		return null;
 	}
+	
+	
+	public static String incrementPc(String currentPc){
+		int pcIntVal = Integer.parseInt(currentPc,2);
+		pcIntVal += 4;
+		return Integer.toBinaryString(pcIntVal);
+	}
 
 }

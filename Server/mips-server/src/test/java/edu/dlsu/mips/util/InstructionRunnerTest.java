@@ -24,6 +24,10 @@ public class InstructionRunnerTest extends TestCase  {
 			InstructionRunner.DSUB("R2", "R1");
 			InstructionRunner.AND("R2", "R1");
 			InstructionRunner.XOR("R2", "R1");
+			InstructionRunner.DADDI("R1", "0001");
+			assertEquals("1", InstructionRunner.SLT("R1", "R2"));
+			assertEquals("0", InstructionRunner.SLT("R2", "R1"));
+			assertEquals("0", InstructionRunner.SLT("R0", "R0"));
 		} catch (StorageInitializationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

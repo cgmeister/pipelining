@@ -123,22 +123,75 @@ public class InstructionRunner {
 		return  hexResult;
 	}
 	
-	public static String SLT(String rs, String rt){
+	public static String SLT(String rs, String rt) throws StorageInitializationException, RegisterAddressOverFlowException{
+		String rsValue = Storage.getRegisterContents(rs);
+		String rtValue = Storage.getRegisterContents(rt);
+		BigInteger rsIntValue = null;
+		BigInteger rtIntValue = null;
+		if(BitStringUtils.isNegativeHex(rsValue)){
+			rsValue = BitStringUtils.doTwosComplement(rsValue);
+			rsIntValue = new BigInteger(rsValue, 16);
+			rsIntValue = rsIntValue.negate();
+		}else{
+			rsIntValue =  BitStringUtils.hexToSignedDec(rsValue);
+		}
+		if(BitStringUtils.isNegativeHex(rtValue)){
+			rtValue = BitStringUtils.doTwosComplement(rtValue);
+			rtIntValue = new BigInteger(rtValue, 16);
+			rtIntValue = rtIntValue.negate();
+		}else{
+			rtIntValue =  BitStringUtils.hexToSignedDec(rtValue);
+		}
+		String result = "";
+		if(rs.compareTo(rt)==-1){
+			result = "1";
+		}else{
+			result = "0";
+		}
+		return result;
+	}
+	
+	
+	public static String DADDI(String rs, String imm) throws StorageInitializationException, RegisterAddressOverFlowException, TrapException{
+		String rsValue = Storage.getRegisterContents(rs);
+		String immValue = imm;
+		BigInteger rsIntValue = null;
+		BigInteger rtIntValue = null;
+		if(BitStringUtils.isNegativeHex(rsValue)){
+			rsValue = BitStringUtils.doTwosComplement(rsValue);
+			rsIntValue = new BigInteger(rsValue, 16);
+			rsIntValue = rsIntValue.negate();
+		}else{
+			rsIntValue =  BitStringUtils.hexToSignedDec(rsValue);
+		}
+		if(BitStringUtils.isNegativeHex(immValue)){
+			immValue = BitStringUtils.doTwosComplement(immValue);
+			rtIntValue = new BigInteger(immValue, 16);
+			rtIntValue = rtIntValue.negate();
+		}else{
+			rtIntValue =  BitStringUtils.hexToSignedDec(immValue);
+		}
+		BigInteger sum = rsIntValue.add(rtIntValue);
+		if(sum.compareTo(upperLimit)==1 || sum.compareTo(lowerLimit)==-1){
+			throw new TrapException("An register overflow occured due to DADDI");
+		};
 		
-		return "";
+		
+		if(sum.compareTo(new BigInteger("-1"))==-1){
+			BigInteger base = new BigInteger("2");
+			BigInteger baseValue = base.pow(64);
+			sum = baseValue.add(sum);
+		}
+		try {
+			String sumHexValue = BitStringUtils.doSignedHexSignExtend(sum.toString(16), 64);
+			return sumHexValue;
+		} catch (BitLengthException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
-	public static String J(String targetPc){
-		return "";
-	}
-	
-	public static String DADDI(String rs, String imm){
-		return "";
-	}
-	
-	public static String BNEZ(String rs, String currentPc, String targetPc){
-		return "";
-	}
 	
 
 }
