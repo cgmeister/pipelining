@@ -7,6 +7,9 @@ import edu.dlsu.mips.domain.PipelineProcess;
 import edu.dlsu.mips.domain.PipelineStage;
 import edu.dlsu.mips.exception.JumpAddressException;
 import edu.dlsu.mips.exception.OperandException;
+import edu.dlsu.mips.exception.RegisterAddressOverFlowException;
+import edu.dlsu.mips.exception.StorageInitializationException;
+import edu.dlsu.mips.exception.TrapException;
 import edu.dlsu.mips.processor.PipelineProcessor;
 import edu.dlsu.mips.util.InstructionRunner;
 import edu.dlsu.mips.util.OpcodeBuilder;
@@ -16,7 +19,7 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 
 	@Override
 	public void processInstruction(Instruction instruction)
-			throws JumpAddressException, OperandException {
+			throws JumpAddressException, OperandException, StorageInitializationException, RegisterAddressOverFlowException, TrapException {
 		incrementSystemClock();
 		processWB();
 		processMem();
@@ -48,7 +51,7 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 		memProcess.incrementStage();
 	}
 	
-	private void processExe() {
+	private void processExe() throws StorageInitializationException, RegisterAddressOverFlowException, TrapException {
 		PipelineProcess exeProcess = SystemUtils.retrieveActiveProcess(PipelineStage.EXE);
 		Opcode opcode = exeProcess.getOpcode();
 		String opcodeString = opcode.getName();
@@ -110,6 +113,7 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 	}
 	
 	private String retrieveJumpInstruction(Opcode opcode) {
+		
 		return null;
 	}
 	
