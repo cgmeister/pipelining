@@ -187,12 +187,14 @@ public class UIInput : MonoBehaviour
 	/// </summary>
 
 	void OnDisable () { if (UICamera.IsHighlighted(gameObject)) OnSelect(false); }
-
+	
 	/// <summary>
 	/// Selection event, sent by UICamera.
 	/// </summary>
+	/// 
+	/// 
 
-	void OnSelect (bool isSelected)
+	public void OnSelect (bool isSelected)
 	{
 		if (label != null && enabled && gameObject.active)
 		{
@@ -340,8 +342,8 @@ public class UIInput : MonoBehaviour
 							if (onSubmit != null) onSubmit(mText);
 							if (eventReceiver == null) eventReceiver = gameObject;
 							eventReceiver.SendMessage(functionName, mText, SendMessageOptions.DontRequireReceiver);
-							current = null;
-							selected = false;
+							//current = null;
+							//selected = false;
 							return;
 						}
 					}
