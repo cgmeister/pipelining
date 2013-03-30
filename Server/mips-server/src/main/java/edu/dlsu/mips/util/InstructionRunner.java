@@ -124,6 +124,7 @@ public class InstructionRunner {
 	}
 	
 	public static String SLT(String rs, String rt){
+		
 		return "";
 	}
 	

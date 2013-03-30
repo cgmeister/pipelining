@@ -28,13 +28,13 @@ public class Storage {
 		Map<String, String> memory = new HashMap<String, String>();
 		for (int i = 0; i <= LAST_MEMORY_ADDRESS; i++) {
 			String address = Integer.toHexString(i);
-			String addressPad = "";
-			if (address.length() != 4) {
-				for (int j = 0; j < (4 - address.length()); j++) {
-					addressPad += "0";
-				}
+			try {
+				address = BitStringUtils.doUnsignedHexSignExtension(address, 16);
+				//System.out.println(address);
+			} catch (BitLengthException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			address = addressPad + address;
 			memory.put(address.toUpperCase(), "00");
 		}
 		return memory;
@@ -63,11 +63,11 @@ public class Storage {
 				String memoryContents = "";
 				for (int i = 0; i < offsetVal; i++) {
 					int addressVal = baseAddress + i;
-					String memoryAddress = Integer.toHexString(addressVal);
+					String memoryAddress = Integer.toHexString(addressVal).toUpperCase();
 					try {
-						memoryAddress = BitStringUtils.doSignedHexSignExtend(
-								memoryAddress, 8);
-						memoryContents += memory.get(memoryAddress);
+						memoryAddress = BitStringUtils.doUnsignedHexSignExtension(
+								memoryAddress, 16);
+						memoryContents += memory.get(memoryAddress.toUpperCase());
 					} catch (BitLengthException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -106,11 +106,11 @@ public class Storage {
 					int addressValue = baseAddress + offset;
 					String memoryAddress = Integer.toHexString(addressValue);
 					try {
-						memoryAddress = BitStringUtils.doSignedHexSignExtend(
-								memoryAddress, 16);
+						memoryAddress = BitStringUtils.doUnsignedHexSignExtension(
+								memoryAddress, 16).toUpperCase();
 						// System.out.println(memoryAddress + "=>" +
 						// tokens[offset]);
-						memory.put(memoryAddress, tokens[offset]);
+						memory.put(memoryAddress.toUpperCase(), tokens[offset]);
 					} catch (BitLengthException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -182,9 +182,10 @@ public class Storage {
 				throw new MemoryAddressOverFlowException();
 			} else {
 				for (int i = startAddressValue; i <= endAddressValue; i++) {
+					
 					String memAddress = Integer.toHexString(i);
 					try {
-						memAddress = BitStringUtils.doSignedHexSignExtend(
+						memAddress = BitStringUtils.doUnsignedHexSignExtension(
 								memAddress, 16);
 						memoryDump.put(memAddress.toUpperCase(),
 								memory.get(memAddress.toUpperCase()));

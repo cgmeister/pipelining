@@ -21,8 +21,8 @@ public class StorageTest extends TestCase {
 	public void testMemoryFunctions(){
 		
 		try {
-			Storage.setMemoryContents("FFF9", "FF33FFF");
-			assertEquals("FF33FFFF", Storage.getMemoryContents("FFF9", "0004"));
+			Storage.setMemoryContents("FFF9", "FF33DD");
+			assertEquals("FF33DD", Storage.getMemoryContents("FFF9", "0003"));
 			Map<String, String> memoryDump = Storage.getMemoryDump("FFF9", "FFFF");
 			for(String memoryAddress: memoryDump.keySet()){
 				System.out.println(memoryAddress + " => " + memoryDump.get(memoryAddress));
