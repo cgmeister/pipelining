@@ -157,5 +157,33 @@ public class BitStringUtils {
 		};
 		return finalHexString.toUpperCase();
 	}
+	
+	public static String shiftLeft(String binaryString, int times){
+		String padding = "";
+		for(int i=0; i<times && i<binaryString.length(); i++){
+			padding += "0";
+		}
+		String shiftedString = "";
+		if(times<=binaryString.length()){
+			shiftedString = binaryString.substring(times, binaryString.length());
+		}
+		String finalBitString = shiftedString + padding;
+		return finalBitString;
+		
+	}
+	
+	public static String shiftRight(String binaryString, int times){
+		String padding = "";
+		for(int i=0; i<times && i<binaryString.length(); i++){
+			padding += "0";
+		}
+		String shiftedString = "";
+		if(times<=binaryString.length()){
+			shiftedString = binaryString.substring(0, binaryString.length()-times);
+		}
+		String finalBitString =  padding + shiftedString;
+		return finalBitString;
+		
+	}
 
 }

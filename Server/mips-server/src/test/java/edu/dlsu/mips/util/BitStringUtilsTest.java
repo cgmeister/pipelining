@@ -23,6 +23,13 @@ public class BitStringUtilsTest extends TestCase {
 	public void testBinaryToHexConverter(){
 		BitStringUtils.convertBinaryToHex("1111111111111111111111101111111111111111111111111111111111111111");
 	}
+	
+	public void testShiftOperations(){
+		assertEquals("00001100", BitStringUtils.shiftLeft("00000011", 2));
+		assertEquals("00110000", BitStringUtils.shiftRight("01100000", 1));
+		assertEquals("00000000", BitStringUtils.shiftLeft("00000011", 21));
+		assertEquals("00000000", BitStringUtils.shiftRight("01100000", 11));
+	}
 
 
 }
