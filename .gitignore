@@ -257,5 +257,5 @@ unitysrc\unitysrc.userprefs
 unitysrc\Assembly-Boo-vs.booproj
 unitysrc\Assembly-Boo.booproj
 
-Library\
-Temp\
+Client\Library\
+Client\Temp\
