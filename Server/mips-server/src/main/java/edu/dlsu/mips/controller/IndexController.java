@@ -1,7 +1,7 @@
 package edu.dlsu.mips.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class IndexController {
 
 	@RequestMapping(value = "/welcome", method = RequestMethod.GET)
-	public String welcome(ModelMap model) {
-		model.addAttribute("message", "MIPS Server - welcome()");
+	public String welcome(Model model) {
+		model.addAttribute("message", "Welcome to MIPS Server!");
 		return "index";
 	}
 

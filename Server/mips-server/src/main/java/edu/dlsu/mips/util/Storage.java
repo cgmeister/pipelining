@@ -12,7 +12,6 @@ import edu.dlsu.mips.exception.MemoryAddressRangeException;
 import edu.dlsu.mips.exception.RegisterAddressOverFlowException;
 import edu.dlsu.mips.exception.StorageInitializationException;
 
-
 public class Storage {
 
 	private static Map<String, String> memory = null;
