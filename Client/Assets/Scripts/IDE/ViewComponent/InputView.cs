@@ -11,8 +11,10 @@ public class InputView : MonoBehaviour {
 	private UIInput _input;
 	private UILabel _inputLabel;
 	private UICamera _uiCamera;
+	private UIDraggablePanel _inputDraggable;
+	private int currentIndex;
 	
-	private int currentIndex = -1;
+	Vector2 scrollVect = new Vector2(1,1);
 	
 	// Use this for initialization
 	void Start () {
@@ -30,7 +32,10 @@ public class InputView : MonoBehaviour {
 
 	private void OnSubmit(){
 		_input.text += "\n";
-		
+		//_input.text = _input.text.Substring(0, _input.text.Length - 1);
+		if (_inputDraggable.verticalScrollBar.barSize < 1){
+			_inputDraggable.verticalScrollBar.scrollValue = 1.2f;
+		}
 		//UICamera.selectedObject = _inputGO;
 	}
 	
@@ -51,9 +56,9 @@ public class InputView : MonoBehaviour {
 	private void initGUI(){
 		_input = _inputGO.GetComponent<UIInput>();
 		_input.eventReceiver = this.gameObject;
-		_inputLabel = _input.GetComponent<UILabel>();
+		_inputLabel = _input.transform.FindChild("Label").GetComponent<UILabel>();
 		_uiCamera = _cameraGO.GetComponent<UICamera>();
-		
+		_inputDraggable = _input.GetComponent<UIDraggablePanel>();
 		_backHighlightGO.SetActive(false);
 	}
 	
@@ -68,6 +73,7 @@ public class InputView : MonoBehaviour {
 	}
 	
 	private void removeListeners(){
+		UIEventListener.Get(_inputGO).onInput -= onTextChanged;
 		UIEventListener.Get(_singleButtonGO).onClick -= onSingleClickHandler;
 		UIEventListener.Get(_singleButtonGO).onClick -= onFullClickHandler;
 	}

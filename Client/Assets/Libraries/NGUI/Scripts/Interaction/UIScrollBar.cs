@@ -122,7 +122,7 @@ public class UIScrollBar : MonoBehaviour
 		}
 		set
 		{
-			float val = Mathf.Clamp01(value);
+			float val = Mathf.Clamp (value, 0, 1.2f);
 
 			if (mScroll != val)
 			{
@@ -267,6 +267,12 @@ public class UIScrollBar : MonoBehaviour
 		}
 	}
 
+	public void setScreenPos(){
+		mCam = UICamera.currentCamera;
+		Bounds b = NGUIMath.CalculateAbsoluteWidgetBounds(mFG.cachedTransform);
+		mScreenPos = mCam.WorldToScreenPoint(b.center);
+	}
+	
 	/// <summary>
 	/// Drag the scroll bar in the specified direction.
 	/// </summary>

@@ -10,6 +10,7 @@ public enum OpcodeType {
 	BNEZ,
 	LD,
 	SD,
-	DADDO,
-	J
+	DADDI,
+	J,
+	Nil
 }

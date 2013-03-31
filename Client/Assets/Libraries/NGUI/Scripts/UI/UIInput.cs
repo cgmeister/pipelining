@@ -340,8 +340,8 @@ public class UIInput : MonoBehaviour
 							if (onSubmit != null) onSubmit(mText);
 							if (eventReceiver == null) eventReceiver = gameObject;
 							eventReceiver.SendMessage(functionName, mText, SendMessageOptions.DontRequireReceiver);
-							current = null;
-							selected = false;
+							//current = null;
+							//selected = false;
 							return;
 						}
 					}
@@ -355,7 +355,7 @@ public class UIInput : MonoBehaviour
 					// Append the character
 					if (c == '\n' || c == '\r')
 					{
-						if (label.multiLine) mText += "\n";
+						//if (label.multiLine) mText += "\n";
 					}
 					else mText += c;
 
