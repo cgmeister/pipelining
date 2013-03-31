@@ -2,7 +2,8 @@ using UnityEngine;
 using System.Collections;
 
 public class IDEEmissaryList {
-	public static Emissary singleButtonClick = new Emissary();
-	public static Emissary fullButtonClick = new Emissary();
-	public static Emissary<string> textChanged = new Emissary<string>();
+	public static Emissary singleButtonClickEmissary = new Emissary();
+	public static Emissary fullButtonClickEmissary = new Emissary();
+	public static Emissary<string> textChangedEmissary = new Emissary<string>();
+	public static Emissary<ErrorType, int, int> validationErrorEmissary = new Emissary<ErrorType, int, int>(); // Error type, line number, param number
 }

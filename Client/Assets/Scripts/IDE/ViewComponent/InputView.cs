@@ -35,7 +35,7 @@ public class InputView : MonoBehaviour {
 	}
 	
 	private void onTextChanged(GameObject go, string str){
-		IDEEmissaryList.textChanged.dispatch(str);
+		IDEEmissaryList.textChangedEmissary.dispatch(str);
 	}
 
 	public void init(GameObject inputGo, GameObject singleGO, GameObject fullGO, GameObject cameraGO, GameObject backHighlightGO){	
@@ -73,11 +73,11 @@ public class InputView : MonoBehaviour {
 	}
 		
 	private void onSingleClickHandler(GameObject go){
-		IDEEmissaryList.singleButtonClick.dispatch();
+		IDEEmissaryList.singleButtonClickEmissary.dispatch();
 	}
 	
 	private void onFullClickHandler(GameObject go){
-		IDEEmissaryList.fullButtonClick.dispatch();
+		IDEEmissaryList.fullButtonClickEmissary.dispatch();
 	}
 	
 	public void show(){

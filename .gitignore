@@ -185,31 +185,27 @@ pip-log.txt
 *.OTHER
 
 # monodevelop project files
-pipelining\Library
-pipelining\Temp
-pipelining\Assembly-CSharp-Editor-vs.csproj
-pipelining\Assembly-CSharp-Editor.csproj
-pipelining\Assembly-CSharp-firstpass-vs.csproj
-pipelining\Assembly-CSharp-firstpass.pidb
-pipelining\Assembly-CSharp-vs.csproj
-pipelining\Assembly-CSharp.csproj
-pipelining\Assembly-CSharp.pidb
-pipelining\Assembly-UnityScript.pidb
-pipelining\assembly-csharp-firstpass.csproj
-pipelining\assembly-unityscript-vs.unityproj
-pipelining\assembly-unityscript.unityproj
-pipelining\Assembly-UnityScript-Editor-firstpass-vs.unityproj
-pipelining\Assembly-UnityScript-Editor-firstpass.unityproj
-pipelining\Assembly-UnityScript-firstpass-vs.unityproj
-pipelining\Assembly-UnityScript-firstpass.unityproj
-pipelining\Assembly-UnityScript-vs.unityproj
-pipelining\Assembly-UnityScript.unityproj
+pipelining\Client\Assembly-CSharp-Editor-vs.csproj
+pipelining\Client\Assembly-CSharp-Editor.csproj
+pipelining\Client\Assembly-CSharp-firstpass-vs.csproj
+pipelining\Client\Assembly-CSharp-firstpass.pidb
+pipelining\Client\Assembly-CSharp-vs.csproj
+pipelining\Client\Assembly-CSharp.csproj
+pipelining\Client\Assembly-CSharp.pidb
+pipelining\Client\Assembly-UnityScript.pidb
+pipelining\Client\assembly-csharp-firstpass.csproj
+pipelining\Client\assembly-unityscript-vs.unityproj
+pipelining\Client\assembly-unityscript.unityproj
+pipelining\Client\Assembly-UnityScript-Editor-firstpass-vs.unityproj
+pipelining\Client\Assembly-UnityScript-Editor-firstpass.unityproj
+pipelining\Client\Assembly-UnityScript-firstpass-vs.unityproj
+pipelining\Client\Assembly-UnityScript-firstpass.unityproj
+pipelining\Client\Assembly-UnityScript-vs.unityproj
+pipelining\Client\Assembly-UnityScript.unityproj
 pipelining\Client.userprefs
-pipelining\Assembly-Boo-vs.booproj
-pipelining\Assembly-Boo.booproj
+pipelining\Client\Assembly-Boo-vs.booproj
+pipelining\Client\Assembly-Boo.booproj
 
-Client\Library
-Client\Temp
 Client\Assembly-CSharp-Editor-vs.csproj
 Client\Assembly-CSharp-Editor.csproj
 Client\Assembly-CSharp-firstpass-vs.csproj
@@ -231,8 +227,6 @@ Client\Client.userprefs
 Client\Assembly-Boo-vs.booproj
 Client\Assembly-Boo.booproj
 
-unitysrc\Library
-unitysrc\Temp
 unitysrc\Assembly-CSharp-Editor-vs.csproj
 unitysrc\Assembly-CSharp-Editor.csproj
 unitysrc\Assembly-CSharp-firstpass-vs.csproj
@@ -254,5 +248,17 @@ unitysrc\unitysrc.userprefs
 unitysrc\Assembly-Boo-vs.booproj
 unitysrc\Assembly-Boo.booproj
 
-Library\
-Temp\
+Temp/*
+Library/*
+
+!Library/*.asset
+!Library/AssetImportState
+!Library/AssetVersioning.db
+!Library/BuildPlayer.prefs
+!Library/ScriptMapper
+!Library/assetservercachev3
+!Library/expandedItems
+!Library/guidmapper
+!Library/unity default resources
+!Library/unity editor resources
+!Library/metadata/

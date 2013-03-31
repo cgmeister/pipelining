@@ -12,15 +12,15 @@ public class IDEController : MonoBehaviour {
 	}
 	
 	private void addListeners(){
-		IDEEmissaryList.textChanged.add(onInputTextChanged);
+		IDEEmissaryList.textChangedEmissary.add(onInputTextChanged);
 	}
 	
 	private void removeListeners(){
-		
+		IDEEmissaryList.textChangedEmissary.remove(onInputTextChanged);
 	}
 	
 	private void onInputTextChanged(string str){
-		Debug.Log("Updated string: " + str);
+		
 	}
 	
 	private void initController(){

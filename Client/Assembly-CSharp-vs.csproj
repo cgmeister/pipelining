@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_WEBPLAYER;WEBPLUG;ENABLE_MICROPHONE;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;ENABLE_AUDIO_FMOD;ENABLE_NETWORK;ENABLE_MONO;ENABLE_PHYSICS;ENABLE_TERRAIN;ENABLE_CACHING;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_CLOTH;ENABLE_MOVIES;ENABLE_AUDIO;ENABLE_WWW;ENABLE_SHADOWS;ENABLE_DUCK_TYPING;UNITY_4_1_2;UNITY_4_1;ENABLE_PROFILER;UNITY_EDITOR</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_WEBPLAYER;WEBPLUG;ENABLE_MICROPHONE;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;ENABLE_AUDIO_FMOD;ENABLE_NETWORK;ENABLE_MONO;ENABLE_PHYSICS;ENABLE_TERRAIN;ENABLE_CACHING;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_CLOTH;ENABLE_MOVIES;ENABLE_AUDIO;ENABLE_WWW;ENABLE_SHADOWS;ENABLE_DUCK_TYPING;UNITY_4_1_1;UNITY_4_1;ENABLE_PROFILER;UNITY_EDITOR</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -44,6 +44,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Libraries\MiniJson\MiniJSON.cs" />
      <Compile Include="Assets\Libraries\NGUI\Examples\Scripts\InventorySystem\Game\EquipItems.cs" />
      <Compile Include="Assets\Libraries\NGUI\Examples\Scripts\InventorySystem\Game\EquipRandomItem.cs" />
      <Compile Include="Assets\Libraries\NGUI\Examples\Scripts\InventorySystem\Game\UICursor.cs" />
@@ -160,15 +161,18 @@
      <Compile Include="Assets\Libraries\NGUI\Scripts\UI\UIViewport.cs" />
      <Compile Include="Assets\Scripts\Engine\Emissary\Emissary.cs" />
      <Compile Include="Assets\Scripts\IDE\DataObject\RegisterDO.cs" />
+     <Compile Include="Assets\Scripts\IDE\Enum\ErrorType.cs" />
      <Compile Include="Assets\Scripts\IDE\Enum\InstructionType.cs" />
+     <Compile Include="Assets\Scripts\IDE\Enum\OpcodeType.cs" />
+     <Compile Include="Assets\Scripts\IDE\Enum\RegisterType.cs" />
      <Compile Include="Assets\Scripts\IDE\Enum\TabType.cs" />
-     <Compile Include="Assets\Scripts\IDE\Enum\TokenType.cs" />
      <Compile Include="Assets\Scripts\IDE\IDEController.cs" />
      <Compile Include="Assets\Scripts\IDE\IDEEmissaryList.cs" />
      <Compile Include="Assets\Scripts\IDE\IDEMediator.cs" />
      <Compile Include="Assets\Scripts\IDE\IDEProxy.cs" />
      <Compile Include="Assets\Scripts\IDE\Interface\IComponentView.cs" />
      <Compile Include="Assets\Scripts\IDE\Interface\ITab.cs" />
+     <Compile Include="Assets\Scripts\IDE\Logic\Validator.cs" />
      <Compile Include="Assets\Scripts\IDE\ViewComponent\ErrorView.cs" />
      <Compile Include="Assets\Scripts\IDE\ViewComponent\IDEGUIVC.cs" />
      <Compile Include="Assets\Scripts\IDE\ViewComponent\InputView.cs" />
@@ -176,34 +180,34 @@
      <Compile Include="Assets\Scripts\IDE\ViewComponent\PipelineMapView.cs" />
      <Compile Include="Assets\Scripts\IDE\ViewComponent\RegisterView.cs" />
      <Compile Include="Assets\Scripts\MainApplication.cs" />
-     <None Include="Assets\Libraries\NGUI\Examples\Atlases\Wooden\Arimo20.txt" />
-     <None Include="Assets\Libraries\NGUI\Examples\Other\French.txt" />
-     <None Include="Assets\Libraries\NGUI\Examples\Atlases\SciFi\SciFi Font - Normal.txt" />
-     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Depth.shader" />
-     <None Include="Assets\Libraries\NGUI\Examples\Models\Orc Armor\Orc Armor.shader" />
-     <None Include="Assets\Libraries\NGUI\Examples\Atlases\Fantasy\Fantasy Font - Normal.txt" />
-     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (Packed) (HardClip).shader" />
-     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (Packed) (AlphaClip) .shader" />
-     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Masked Colored.shader" />
-     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (Packed).shader" />
-     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (AlphaClip).shader" />
-     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored.shader" />
-     <None Include="Assets\Libraries\NGUI\Examples\Atlases\Wooden\Arimo18.txt" />
-     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored Overlay.shader" />
-     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (SoftClip).shader" />
-     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (HardClip).shader" />
-     <None Include="Assets\Texture\IDE\AgencyBM.txt" />
-     <None Include="Assets\Libraries\NGUI\Examples\Atlases\Refractive\Refractive Font - Header.txt" />
      <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Depth Cutout.shader" />
+     <None Include="Assets\Libraries\NGUI\Examples\Models\Orc\Orc Skin.shader" />
+     <None Include="Assets\Libraries\NGUI\Examples\Atlases\Wooden\Arimo20.txt" />
      <None Include="Assets\Libraries\NGUI\Examples\Atlases\Wooden\Arimo14.txt" />
+     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Masked Colored.shader" />
+     <None Include="Assets\Libraries\NGUI\Examples\Atlases\Wooden\Arimo18.txt" />
+     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (Packed) (AlphaClip) .shader" />
+     <None Include="Assets\Libraries\NGUI\Examples\Atlases\SciFi\SciFi Font - Header.txt" />
+     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (AlphaClip).shader" />
+     <None Include="Assets\Libraries\NGUI\Examples\Atlases\Fantasy\Fantasy Font - Normal.txt" />
      <None Include="Assets\Libraries\NGUI\Examples\Atlases\Refractive\Refractive Font - Normal.txt" />
      <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (Packed) (SoftClip).shader" />
      <None Include="Assets\Libraries\NGUI\ReadMe - 2.1.4.txt" />
-     <None Include="Assets\Libraries\NGUI\Examples\Atlases\SciFi\SciFi Font - Header.txt" />
-     <None Include="Assets\Libraries\NGUI\Examples\Shaders\Refractive.shader" />
-     <None Include="Assets\Libraries\NGUI\Examples\Models\Orc\Orc Skin.shader" />
-     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Additive Colored.shader" />
+     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored.shader" />
+     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (HardClip).shader" />
+     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored Overlay.shader" />
      <None Include="Assets\Libraries\NGUI\Examples\Other\English.txt" />
+     <None Include="Assets\Libraries\NGUI\Examples\Other\French.txt" />
+     <None Include="Assets\Texture\IDE\AgencyBM.txt" />
+     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (Packed).shader" />
+     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (Packed) (HardClip).shader" />
+     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Additive Colored.shader" />
+     <None Include="Assets\Libraries\NGUI\Examples\Atlases\Refractive\Refractive Font - Header.txt" />
+     <None Include="Assets\Libraries\NGUI\Examples\Shaders\Refractive.shader" />
+     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Depth.shader" />
+     <None Include="Assets\Libraries\NGUI\Examples\Atlases\SciFi\SciFi Font - Normal.txt" />
+     <None Include="Assets\Libraries\NGUI\Resources\Shaders\Unlit - Transparent Colored (SoftClip).shader" />
+     <None Include="Assets\Libraries\NGUI\Examples\Models\Orc Armor\Orc Armor.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
