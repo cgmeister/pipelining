@@ -24,13 +24,17 @@ public class Validator {
 		}
 	}
 	
-	public string[] processString(string str){
-		str.Replace(" ", String.Empty);
-		string[] strArr = str.Split(new string[]{"\r\n", "\n"}, StringSplitOptions.None);
+	public string[] processString(string str){		
+		string trimStr = str.Replace(" ", "");
+		string[] strArr = trimStr.Split(new string[]{"\r\n", "\n"}, StringSplitOptions.None);
 		return strArr;
 	}
+
 	
-	private void validateString (string[] strArr){
+	public void validateInstructionFromStringArray (string[] strArr){
+		_instList = new List<string[]>();
+		_jumpList = new List<string>();
+		
 		addJumpLabels(strArr);
 		validateStringContents(strArr);
 	}
@@ -44,29 +48,34 @@ public class Validator {
 			string[] newStrArr = new string[]{""};
 			string[] jmpStrArr = strArr[x].Split(new string[]{":"}, StringSplitOptions.None);
 			if (jmpStrArr.Length > 1){
-				if (checkAndValidateJumpLabel(jmpStrArr[0], x, -1)){
-					validateInstruction(jmpStrArr[1], x);
-				} 
+				if (checkAndValidateJumpLabel(jmpStrArr[0], x+1, -1)){
+					validateInstruction(jmpStrArr[1], x+1);
+				}
 			} else {
-				validateInstruction(strArr[x], x);
-			}	
-			_instList.Add(newStrArr);			
+				validateInstruction(strArr[x], x+1);
+			}
+			_instList.Add(newStrArr);
 		}
 	}
 	
 	private void validateInstruction(string str, int lineNum){
 		InstructionType instType;
-		OpcodeType opcodeType = (OpcodeType)Enum.Parse(typeof(OpcodeType), str);
+		OpcodeType opcodeType;
 		string[] strArr = str.Split(new string[]{","}, StringSplitOptions.None);
-		instType = validateOpcode(str);
-		if (instType != InstructionType.Nil){
+		
+		opcodeType = getOpcodeType(strArr[0]);
+		Debug.Log("OPCODE: " + opcodeType.ToString());
+		if (opcodeType != OpcodeType.Nil){				
+			instType = getInststructionType(str);
 			if(strArr.Length > 1){
 				checkForTypes(strArr, opcodeType, lineNum, instType);
 			} else {
 				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0071_INSTRUCTION_INSUFFICIENTPARAMS, lineNum, 0);
-			}
+				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0071_INSTRUCTION_INSUFFICIENTPARAMS));
+			}	
 		} else {
 			IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0010_OPCODE, lineNum, 0);
+			Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0010_OPCODE));
 		}
 	}
 	
@@ -96,6 +105,7 @@ public class Validator {
 				hasJump = true;
 			} else {
 				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0060_JUMP, lineNum, paramNum);
+				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0060_JUMP));
 			}
 		} 
 		return hasJump;
@@ -130,6 +140,7 @@ public class Validator {
 			}
 		} else {
 			IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0071_INSTRUCTION_INSUFFICIENTPARAMS, lineNum, -2);
+			Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0071_INSTRUCTION_INSUFFICIENTPARAMS));
 		}
 	}
 	
@@ -162,7 +173,58 @@ public class Validator {
 		validateJump(strArr[1], lineNum, 1); 
 	}
 	
-	private InstructionType validateOpcode(string str){
+	private OpcodeType getOpcodeType(string str){
+		OpcodeType opCode;
+		switch(str){
+			case "DADD":{
+				opCode = OpcodeType.DADD;
+				break;
+			}
+			case "DSUB":{
+				opCode = OpcodeType.DSUB;
+				break;
+			}
+			case "OR":{
+				opCode = OpcodeType.OR;
+				break;
+			}
+			case "XOR":{
+				opCode = OpcodeType.XOR;
+				break;
+			}
+			case "SLT":{
+				opCode = OpcodeType.SLT;
+				break;
+			}
+			case "BNEZ":{
+				opCode = OpcodeType.BNEZ;
+				break;
+			}
+			case "LD":{
+				opCode = OpcodeType.LD;
+				break;
+			}
+			case "SD":{
+				opCode = OpcodeType.SD;
+				break;
+			}
+			case "DADDI":{
+				opCode = OpcodeType.DADDI;
+				break;
+			}
+			case "J":{
+				opCode = OpcodeType.J;
+				break;
+			}
+			default :{
+				opCode = OpcodeType.Nil;
+				break;
+			}
+		}
+		return opCode;
+	}
+	
+	private InstructionType getInststructionType(string str){
 		InstructionType instType;
 		switch((OpcodeType)Enum.Parse(typeof(OpcodeType), str)){
 			case OpcodeType.DADD:{
@@ -225,6 +287,7 @@ public class Validator {
 		}
 		if (!valid){
 			IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0020_REGISTER, lineNum, paramNum);
+			Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0020_REGISTER));
 		}
 		return valid;
 	}
@@ -240,21 +303,25 @@ public class Validator {
 				string comRegStr = regStr.Remove(regStr.Length-1);
 				if (offStr.Length != 4 && checkIfAllAreDigits(comRegStr)){
 					IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0030_IMMEDIATE, lineNum, paramNum);
+					Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0030_IMMEDIATE));
 				} else if (regStr[regStr.Length -1] != ')' && !validateRegister(comRegStr, lineNum, paramNum)){
 				} else {
 					valid = true;
 				}
 			} else {
 				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0040_OFFSET, lineNum, paramNum);
+				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0040_OFFSET));
 			}
 		} else {
 			
 			if (str[0] != '#'){
 				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0030_IMMEDIATE, lineNum, paramNum);
+				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0030_IMMEDIATE));
 			} else {
 				string digitStr = str.Remove(0,1);
 				if (!checkIfAllAreDigits(digitStr)){
 					IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0030_IMMEDIATE, lineNum, paramNum);
+					Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0030_IMMEDIATE));
 				}
 			}
 		}

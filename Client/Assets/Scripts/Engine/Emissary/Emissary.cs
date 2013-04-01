@@ -29,7 +29,7 @@ public class Emissary<T, U, V>  {
     private event EmissaryHandler<T, U, V> EventEmissary;
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="Emissarys"/> class.
+	/// Initializes a new instance of the <see cref="Emissary"/> class.
 	/// </summary>
 	public Emissary(){}
 
@@ -90,7 +90,7 @@ public class Emissary<T, U>  {
     private event EmissaryHandler<T, U> EventEmissary;
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="Emissarys"/> class.
+	/// Initializes a new instance of the <see cref="Emissary"/> class.
 	/// </summary>
 	public Emissary(){}
 
@@ -151,7 +151,7 @@ public class Emissary<T>  {
     private event EmissaryHandler<T> EventEmissary;
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="Emissarys"/> class.
+	/// Initializes a new instance of the <see cref="Emissary"/> class.
 	/// </summary>
 	public Emissary(){}
 
@@ -169,7 +169,7 @@ public class Emissary<T>  {
 	/// Remove a Emissary event.
 	/// </summary>
 	/// <param name='function'>
-	/// The function of the event used to be executed when a Emissary is dispatched. 
+	/// The function of the event used to be executed when a Emissary is dispatched.
 	/// </param>
 
     public void remove(EmissaryHandler<T> function){   
@@ -190,7 +190,7 @@ public class Emissary<T>  {
 				//Debug.Log("No event listeners found");
 			}
 		} catch (Exception e){
-			Debug.Log("Dispatch Error: " + e.Message + " - Trying to send a param: " + typeof(T).ToString());
+			Debug.Log("Dispatch Error: " + e.Message);
 		}
     }
 }
@@ -229,7 +229,7 @@ public class Emissary  {
 	/// The function of the event used to be executed when a Emissary is dispatched. 
 	/// </param>
 
-    public void remove(EmissaryHandler function){   
+    public void remove(EmissaryHandler function){  
         EventEmissary -= function;
     }   
 

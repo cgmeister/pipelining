@@ -40,7 +40,8 @@ public class InputView : MonoBehaviour {
 	}
 	
 	private void onTextChanged(GameObject go, string str){
-		IDEEmissaryList.textChangedEmissary.dispatch(str);
+		string inpStr = _input.text;
+		IDEEmissaryList.textChangedEmissary.dispatch(inpStr);
 	}
 
 	public void init(GameObject inputGo, GameObject singleGO, GameObject fullGO, GameObject cameraGO, GameObject backHighlightGO){	
