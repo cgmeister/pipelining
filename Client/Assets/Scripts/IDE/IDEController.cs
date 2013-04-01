@@ -1,10 +1,13 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class IDEController : MonoBehaviour {
 	
 	private IDEProxy _ideProxy;
 	private IDEMediator _ideMediator;
+	
+	private Validator _validatorLogic;
 	
 	public void init(){
 		initController();
@@ -12,15 +15,34 @@ public class IDEController : MonoBehaviour {
 	}
 	
 	private void addListeners(){
-		IDEEmissaryList.textChanged.add(onInputTextChanged);
+		IDEEmissaryList.textChangedEmissary.add(onInputTextChanged);
+		IDEEmissaryList.validationErrorEmissary.add(onValidationErrorFound);
 	}
 	
 	private void removeListeners(){
-		
+		IDEEmissaryList.textChangedEmissary.remove(onInputTextChanged);
+		IDEEmissaryList.validationErrorEmissary.remove(onValidationErrorFound);
 	}
 	
 	private void onInputTextChanged(string str){
-		Debug.Log("Updated string: " + str);
+		_ideProxy.resetErrorLogs();
+		string[] procStr = _validatorLogic.processString(str);
+		//Debug.Log(String.Join(",", procStr));
+		_validatorLogic.validateInstructionFromStringArray(procStr);
+		updateErrorOutput();
+	}
+	
+	private void onValidationErrorFound(ErrorType errType, int lineNum, int paramNum){
+		ErrorDC dc = new ErrorDC();
+		dc.errorType = errType;
+		dc.lineNum = lineNum;
+		dc.paramNum = paramNum;
+		Debug.Log("Error Type: " + errType.ToString() + " Line Num: " + lineNum + " Param Num: " + paramNum);
+		_ideProxy.addErrorLog(dc);
+	}
+	
+	private void updateErrorOutput(){
+		_ideMediator.updateErrorLogs(_ideProxy.IdeDO.errorList);
 	}
 	
 	private void initController(){
@@ -29,6 +51,8 @@ public class IDEController : MonoBehaviour {
 		
 		_ideProxy = new IDEProxy();
 		_ideProxy.init();
+		
+		_validatorLogic = new Validator();
 	}
 	
 	private void destroy(){

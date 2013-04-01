@@ -115,4 +115,20 @@ public class IDEMediator : MonoBehaviour {
 		_inputView.destroy();
 		DestroyImmediate(_inputView);
 	}
+	
+	public void updateErrorLogs(List<ErrorDC> errorList){
+		int len = errorList.Count;
+		string str = ""; 
+		for (int x=0; x<len; x++){
+			ErrorType errType = errorList[x].errorType;
+			str += errType.ToString();
+			str += " : Line number " + errorList[x].lineNum;
+			if (errType == ErrorType.ERROR_0020_REGISTER || errType == ErrorType.ERROR_0040_OFFSET || errType == ErrorType.ERROR_0030_IMMEDIATE || errType == ErrorType.ERROR_0060_JUMP){
+				str += " : Parameter number " + errorList[x].paramNum + ".\n";
+			} else {
+				str += ".\n";
+			}
+		}
+		_errorView.setErrorLabel(str);
+	}
 }

@@ -187,14 +187,12 @@ public class UIInput : MonoBehaviour
 	/// </summary>
 
 	void OnDisable () { if (UICamera.IsHighlighted(gameObject)) OnSelect(false); }
-	
+
 	/// <summary>
 	/// Selection event, sent by UICamera.
 	/// </summary>
-	/// 
-	/// 
 
-	public void OnSelect (bool isSelected)
+	void OnSelect (bool isSelected)
 	{
 		if (label != null && enabled && gameObject.active)
 		{
@@ -357,7 +355,7 @@ public class UIInput : MonoBehaviour
 					// Append the character
 					if (c == '\n' || c == '\r')
 					{
-						if (label.multiLine) mText += "\n";
+						//if (label.multiLine) mText += "\n";
 					}
 					else mText += c;
 
