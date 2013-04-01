@@ -12,7 +12,6 @@ public class IDEController : MonoBehaviour {
 	public void init(){
 		initController();
 		addListeners();
-		
 	}
 	
 	private void addListeners(){
@@ -26,9 +25,11 @@ public class IDEController : MonoBehaviour {
 	}
 	
 	private void onInputTextChanged(string str){
+		_ideProxy.resetErrorLogs();
 		string[] procStr = _validatorLogic.processString(str);
 		//Debug.Log(String.Join(",", procStr));
 		_validatorLogic.validateInstructionFromStringArray(procStr);
+		updateErrorOutput();
 	}
 	
 	private void onValidationErrorFound(ErrorType errType, int lineNum, int paramNum){
@@ -37,7 +38,11 @@ public class IDEController : MonoBehaviour {
 		dc.lineNum = lineNum;
 		dc.paramNum = paramNum;
 		Debug.Log("Error Type: " + errType.ToString() + " Line Num: " + lineNum + " Param Num: " + paramNum);
-		_ideProxy.AddError(dc);
+		_ideProxy.addErrorLog(dc);
+	}
+	
+	private void updateErrorOutput(){
+		_ideMediator.updateErrorLogs(_ideProxy.IdeDO.errorList);
 	}
 	
 	private void initController(){

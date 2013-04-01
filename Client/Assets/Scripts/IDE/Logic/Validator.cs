@@ -66,12 +66,13 @@ public class Validator {
 		opcodeType = getOpcodeType(strArr[0]);
 		Debug.Log("OPCODE: " + opcodeType.ToString());
 		if (opcodeType != OpcodeType.Nil){				
-			instType = getInststructionType(str);
+			Debug.Log(strArr.Length);
+			instType = getInststructionType(opcodeType);
 			if(strArr.Length > 1){
 				checkForTypes(strArr, opcodeType, lineNum, instType);
 			} else {
-				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0071_INSTRUCTION_INSUFFICIENTPARAMS, lineNum, 0);
-				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0071_INSTRUCTION_INSUFFICIENTPARAMS));
+				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0071_INSTRUCTION_INVALIDNUMBEROFARGUMENTS, lineNum, -2);
+				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0071_INSTRUCTION_INVALIDNUMBEROFARGUMENTS));
 			}	
 		} else {
 			IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0010_OPCODE, lineNum, 0);
@@ -129,41 +130,79 @@ public class Validator {
 	}
 	
 	private void checkRType(string[] strArr, int lineNum){
-		if (strArr.Length == 3){
+		if (strArr.Length <= 4){
 			bool valid = true;
-			for (int x=0; x<3; x++){
+			for (int x=0; x<strArr.Length-1; x++){
 				if(valid){
 					valid = validateRegister(strArr[x+1], lineNum, x+1);
 				} else {
 					break;
 				}
 			}
-		} else {
-			IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0071_INSTRUCTION_INSUFFICIENTPARAMS, lineNum, -2);
-			Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0071_INSTRUCTION_INSUFFICIENTPARAMS));
+		}
+	 
+		
+	}
+	
+	private void sendNumArgError(int len ,int max, int lineNum){
+		if (len != max){
+			IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0071_INSTRUCTION_INVALIDNUMBEROFARGUMENTS, lineNum, -2);
+			Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0071_INSTRUCTION_INVALIDNUMBEROFARGUMENTS));
 		}
 	}
 	
 	private void checkIType(string[] strArr, OpcodeType opcodeType, int lineNum){
+		int len = strArr.Length;
 		switch(opcodeType){
-			case OpcodeType.BNEZ:{
-				validateRegister(strArr[1], lineNum, 1);
-				validateJump(strArr[2], lineNum, 2);
+			case OpcodeType.BNEZ:{				
+				if (len <= 3){
+					if (len > 1){
+						validateRegister(strArr[1], lineNum, 1);
+					} 
+					if (len > 2){
+						validateJump(strArr[2], lineNum, 2);
+					}
+				}
+				sendNumArgError(strArr.Length, 3, lineNum);
 				break;
 			}
 			case OpcodeType.LD:{
-				validateRegister(strArr[1], lineNum, 1);
-				validateImmediateOffset(strArr[2], lineNum, 2, true);
+				if (len <= 3){
+					if (len > 1){
+						validateRegister(strArr[1], lineNum, 1);
+					} 
+					if (len > 2){
+						validateImmediateOffset(strArr[2], lineNum, 2, true);
+					}
+				}
+				sendNumArgError(strArr.Length, 4, lineNum);
 				break;
 			}
 			case OpcodeType.SD:{
-				validateRegister(strArr[1], lineNum, 1);
-				validateImmediateOffset(strArr[2], lineNum, 2, true);
+				if (len <= 3){
+					if (len > 1){
+						validateRegister(strArr[1], lineNum, 1);
+					} 
+					if(len > 2){
+						validateImmediateOffset(strArr[2], lineNum, 2, true);
+					}
+				}
+				sendNumArgError(strArr.Length, 4, lineNum);
 				break;
 			}
 			case OpcodeType.DADDI:{
-				validateRegister(strArr[1], lineNum, 1);
-				validateImmediateOffset(strArr[2], lineNum, 2, false);
+				if (strArr.Length <= 4){
+					if (len > 1){
+						validateRegister(strArr[1], lineNum, 1);
+					}	
+					if (len > 2){
+						validateRegister(strArr[2], lineNum, 2);
+					}
+					if (len > 3){
+						validateImmediateOffset(strArr[3], lineNum, 3, false);
+					}
+				}
+				sendNumArgError(strArr.Length, 3, lineNum);
 				break;
 			}
 		}
@@ -224,9 +263,9 @@ public class Validator {
 		return opCode;
 	}
 	
-	private InstructionType getInststructionType(string str){
+	private InstructionType getInststructionType(OpcodeType opcodeType){
 		InstructionType instType;
-		switch((OpcodeType)Enum.Parse(typeof(OpcodeType), str)){
+		switch(opcodeType){
 			case OpcodeType.DADD:{
 				instType = InstructionType.R;
 				break;

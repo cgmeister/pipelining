@@ -24,8 +24,12 @@ public class IDEProxy {
 		return memArr;
 	}
 	
-	public void AddError(ErrorDC errItem){
+	public void addErrorLog(ErrorDC errItem){
 		_ideDO.errorList.Add(errItem);
+	}
+	
+	public void resetErrorLogs(){
+		_ideDO.errorList = new List<ErrorDC>();
 	}
 	
 	public void updateInstrList(List<InstructionDC> instrList){
