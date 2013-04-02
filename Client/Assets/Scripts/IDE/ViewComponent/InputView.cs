@@ -17,6 +17,8 @@ public class InputView : MonoBehaviour {
 	
 	Vector2 scrollVect = new Vector2(1,1);
 	
+	public Emissary resetButtonEmissary = new Emissary();
+	
 	// Use this for initialization
 	void Start () {
 		
@@ -85,6 +87,7 @@ public class InputView : MonoBehaviour {
 	
 	private void onResetClick(GameObject go){
 		_input.text = "";
+		resetButtonEmissary.dispatch();
 	}
 		
 	private void onSingleClickHandler(GameObject go){
