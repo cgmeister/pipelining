@@ -14,6 +14,7 @@ public class IDEGUIVC {
 	
 	public const string BUTTON_SINGLE = "Single Line Button";
 	public const string BUTTON_FULL = "Full Button";
+	public const string BUTTON_RESET = "Reset Button";
 	
 	public const string CAMERA = "Camera";
 	
@@ -25,6 +26,7 @@ public class IDEGUIVC {
 	public GameObject pipelineTabButton;
 	public GameObject singleButton;
 	public GameObject fullButton;
+	public GameObject resetButton;
 	public GameObject inputBackHighlight;
 	public GameObject camera;
 	
@@ -39,6 +41,7 @@ public class IDEGUIVC {
 		
 		singleButton = GameObject.Find(BUTTON_SINGLE);
 		fullButton = GameObject.Find(BUTTON_FULL);
+		resetButton = GameObject.Find(BUTTON_RESET);
 		
 		inputBackHighlight = GameObject.Find(INPUT_BACKHIGHLIGHT);
 		

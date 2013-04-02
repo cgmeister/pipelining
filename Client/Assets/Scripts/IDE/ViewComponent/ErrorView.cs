@@ -33,7 +33,7 @@ public class ErrorView : MonoBehaviour {
 	}
 	
 	public void addListeners(){
-	
+		
 	}
 	
 	public void removeListeners(){
