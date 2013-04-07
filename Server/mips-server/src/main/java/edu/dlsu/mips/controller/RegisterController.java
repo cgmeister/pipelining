@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import edu.dlsu.mips.domain.MIPSRegisters;
 import edu.dlsu.mips.dto.RegisterDTO;
 import edu.dlsu.mips.exception.RegisterAddressOverFlowException;
 import edu.dlsu.mips.exception.StorageInitializationException;
@@ -44,6 +45,13 @@ public class RegisterController {
 		registerDTO.updateRegister();
 		
 		return registerDTO;
+	}
+	
+
+	@RequestMapping(value = "/mipsregister", method = RequestMethod.GET)
+	@ResponseBody
+	public MIPSRegisters getMIPSRegister(){
+		return MIPSRegisters.getInstance();
 	}
 	
 	

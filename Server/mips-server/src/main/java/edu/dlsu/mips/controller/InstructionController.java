@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.dlsu.mips.domain.Instruction;
 import edu.dlsu.mips.dto.InstructionDTO;
+import edu.dlsu.mips.dto.ProcessStatusDTO;
 import edu.dlsu.mips.exception.JumpAddressException;
 import edu.dlsu.mips.exception.MemoryAddressOverFlowException;
 import edu.dlsu.mips.exception.OpcodeNotSupportedException;
@@ -30,18 +31,18 @@ public class InstructionController {
 		this.pipelineProcessor = pipelineProcessor;
 	}
 	
-	
-	
 	@RequestMapping(value = "/send", method = RequestMethod.GET)
 	@ResponseBody
-	public InstructionDTO recieveInstruction(@RequestParam("instruction") String instruction){
+	public ProcessStatusDTO recieveInstruction(@RequestParam("instruction") String instruction){
 		
 		InstructionDTO instructionDTO = InstructionDTO.getInstance();
 		instructionDTO.setInstruction(instruction);
 		
 		Instruction instructionDomain = Instruction.newInstance(instruction);
+		ProcessStatusDTO processStatusDTO = ProcessStatusDTO.getInstance();
+		
 		try {
-			pipelineProcessor.processInstruction(instructionDomain);
+			processStatusDTO.setProcessStatus(pipelineProcessor.processInstruction(instructionDomain));
 		} catch (JumpAddressException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -65,8 +66,15 @@ public class InstructionController {
 			e.printStackTrace();
 		}
 		
+		return processStatusDTO;
 		
-		return instructionDTO;
+	}
+	
+	@RequestMapping(value = "/getopcode", method = RequestMethod.GET)
+	@ResponseBody
+	public InstructionDTO getOpCode(){
+	
+		return InstructionDTO.getInstance();
 		
 	}
 	
