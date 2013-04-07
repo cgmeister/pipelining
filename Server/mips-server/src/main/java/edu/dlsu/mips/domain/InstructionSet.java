@@ -15,6 +15,7 @@ public class InstructionSet {
 	private String binaryInstruction = null;
 	private String instruction = "";
 	private String opcode = "";
+	private Integer targetLine = null;
 
 	public String getHexInstruction() {
 		return hexInstruction;
@@ -118,6 +119,14 @@ public class InstructionSet {
 
 	public void setOpcode(String opcode) {
 		this.opcode = opcode;
+	}
+
+	public Integer getTargetLine() {
+		return targetLine;
+	}
+
+	public void setTargetLine(Integer targetLine) {
+		this.targetLine = targetLine;
 	}
 
 }

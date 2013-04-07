@@ -1,9 +1,7 @@
 package edu.dlsu.mips.util;
 
-import java.util.Map;
 
 import edu.dlsu.mips.exception.MemoryAddressOverFlowException;
-import edu.dlsu.mips.exception.MemoryAddressRangeException;
 import edu.dlsu.mips.exception.RegisterAddressOverFlowException;
 import edu.dlsu.mips.exception.StorageInitializationException;
 import edu.dlsu.mips.util.Storage;
@@ -21,22 +19,15 @@ public class StorageTest extends TestCase {
 	public void testMemoryFunctions(){
 		
 		try {
-			Storage.setMemoryContents("FFF9", "FF33DD");
-			assertEquals("FF33DD", Storage.getMemoryContents("FFF9", "0003"));
-			Map<String, String> memoryDump = Storage.getMemoryDump("FFF9", "FFFF");
-			for(String memoryAddress: memoryDump.keySet()){
-				System.out.println(memoryAddress + " => " + memoryDump.get(memoryAddress));
-			}
+			Storage.setMemoryContents("FFF5", "FF33DD");
+			System.out.println(Storage.getMemoryContents("FFF5", "8"));
 		} catch (MemoryAddressOverFlowException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (StorageInitializationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (MemoryAddressRangeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 	}
 	
 	public void testRegisterFunctions(){

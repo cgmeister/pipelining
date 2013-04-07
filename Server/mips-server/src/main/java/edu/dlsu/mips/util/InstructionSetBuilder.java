@@ -77,13 +77,12 @@ public class InstructionSetBuilder {
 			OperandException {
 		String instruction = instructionSet.getInstruction();
 		String[] tokens = instruction.split(" ");
-		int nameIntValue = Integer.parseInt(tokens[1], 16);
-		if (nameIntValue % 4 != 0) {
+		int nameIntValue = Integer.parseInt(tokens[1]);
+		if ((nameIntValue * 4) % 4 != 0) {
 			throw new JumpAddressException();
 		} else if (tokens.length != 2) {
 			throw new OperandException("J Types must have 1 argument <J args0>");
 		} else {
-			nameIntValue = nameIntValue / 4;
 			String opcodeBitString = BitStringUtils
 					.doUnsignedBinarySignExtention(opcodeValue.get(tokens[0]),
 							6);
@@ -98,6 +97,8 @@ public class InstructionSetBuilder {
 			try {
 				hexOpcode = BitStringUtils.doUnsignedHexSignExtension(
 						hexOpcode, 32);
+				instructionSet.setTargetLine(nameIntValue);
+
 			} catch (BitLengthException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -204,9 +205,10 @@ public class InstructionSetBuilder {
 			}
 			int rsAddressIntVal = Integer.parseInt(operands[0].substring(1,
 					operands[0].length()));
-			int nextPc = Integer.parseInt(operands[1], 16) + 4;
-			int targetPc = Integer.parseInt(operands[2], 16);
+			int nextPc = (Integer.parseInt(operands[1]) * 4) + 4;
+			int targetPc = Integer.parseInt(operands[2]) * 4;
 			int immIntVal = (targetPc - nextPc) / 4;
+			// val * 4 + npc + 4
 			String opcodeBitString = BitStringUtils
 					.doUnsignedBinarySignExtention(opcodeIntValue, 6);
 			instructionSet.setBinaryOpcode(opcodeBitString);
@@ -231,6 +233,7 @@ public class InstructionSetBuilder {
 				e.printStackTrace();
 			}
 			instructionSet.setHexInstruction(hexOpcode);
+			instructionSet.setTargetLine(Integer.parseInt(operands[2]));
 			// System.out.println(opcode.getBinaryOpCode());
 			// System.out.println(opcode.getHexOpCode());
 
