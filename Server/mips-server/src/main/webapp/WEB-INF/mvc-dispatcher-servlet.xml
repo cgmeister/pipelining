@@ -25,5 +25,7 @@
 			<value>.jsp</value>
 		</property>
 	</bean>
+	
+	<bean id="pipelineProcessorImpl" class="edu.dlsu.mips.processor.impl.PipelineProcessorImpl"></bean>
  
 </beans>
