@@ -1,5 +1,6 @@
 package edu.dlsu.mips.processor.impl;
 
+import java.util.LinkedList;
 import java.util.Queue;
 
 import edu.dlsu.mips.domain.Instruction;
@@ -27,7 +28,7 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 	private static final String SET = "1";
 	private static final String NOT_SET = "0";
 	private static final String LD_OPCODE_OFFSET = "8";
-	private Queue<Instruction> instructions;
+	private Queue<Instruction> instructions = new LinkedList<Instruction>();
 
 	@Override
 	public ProcessStatus processInstruction(Instruction instruction)
