@@ -34,6 +34,10 @@ public class PipelineProcess {
 	public void logProcessClocking() {
 		processClocking.put(SystemUtils.clockCycle, pipelineStage.name());
 	}
+	
+	public void markHazard() {
+		pipelineStage = PipelineStage.STALL;
+	}
 
 	public InstructionSet getInstructionSet() {
 		return instructionSet;

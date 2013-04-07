@@ -135,6 +135,8 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 				SystemUtils.removeFromActiveProcess(PipelineStage.ID);
 				SystemUtils.setDataHazard(true);
 				SystemUtils.setTargetLine(instructionSet.getInstructionLine());
+				exeProcess.markHazard();
+				exeProcess.logProcessClocking();
 			} else {
 				String opcode = instructionSet.getOpcode();
 				if (isALUInstruction(opcode)) {
