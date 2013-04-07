@@ -1,6 +1,7 @@
 package edu.dlsu.mips.util;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 import com.google.common.collect.Lists;
 
@@ -12,6 +13,10 @@ public class SystemUtils {
 	public static int clockCycle = 0;
 	private static Collection<PipelineProcess> activeProcesses;
 	private static Collection<PipelineProcess> allProcesses;
+	private static HashSet<String> dataHazardStack;
+	private static boolean isPCChanged;
+	private static boolean hasDataHazard;
+	private static int targetLine;
 	
 	public static void addToAllProcess(PipelineProcess pipelineProcess) {
 		allProcesses.add(pipelineProcess);
@@ -49,9 +54,45 @@ public class SystemUtils {
 		pcIntVal += 4;
 		return Integer.toBinaryString(pcIntVal);
 	}
+	
+	public static void addDataHazard(String register) {
+		dataHazardStack.add(register);
+	}
+	
+	public static void removeDataHazard(String register) {
+		dataHazardStack.remove(register);
+	}
+	
+	public static boolean dataHazardStackContains(String register) {
+		return dataHazardStack.contains(register);
+	}
 
 	public static Collection<PipelineProcess> getAllProcesses() {
 		return allProcesses;
+	}
+
+	public static boolean isPCChanged() {
+		return isPCChanged;
+	}
+
+	public static void setPCChanged(boolean isPCChanged) {
+		SystemUtils.isPCChanged = isPCChanged;
+	}
+
+	public static boolean hasDataHazard() {
+		return hasDataHazard;
+	}
+
+	public static void setDataHazard(boolean hasDataHazard) {
+		SystemUtils.hasDataHazard = hasDataHazard;
+	}
+
+	public static int getTargetLine() {
+		return targetLine;
+	}
+
+	public static void setTargetLine(int targetLine) {
+		SystemUtils.targetLine = targetLine;
 	}
 
 }
