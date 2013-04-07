@@ -44,11 +44,17 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 		incrementSystemClock();
 		processWB();
 		processMem();
-		processExe();
-		processID();
-		if (!instructions.isEmpty()) {
-			processIF(instructions.poll());
+		if (SystemUtils.isPCChanged()) {
+			SystemUtils.setPCChanged(false);
+			return ProcessStatus.JUMP;
 		}
+		processExe();
+		if (SystemUtils.hasDataHazard()) {
+			SystemUtils.setDataHazard(false);
+			return ProcessStatus.HAZARD;
+		}
+		processID();
+		processIF();
 		if (SystemUtils.hasActiveProcess()) {
 			return ProcessStatus.ONGOING;
 		}
@@ -67,7 +73,18 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 			if (opcode.equals("LD")) {
 				Storage.setRegisterContents(instructionSet.getRt(), MIPSRegisters.MEMWBLMD);
 			} else if (isALUInstruction(opcode)) {
-				Storage.setRegisterContents(instructionSet.getRt(), MIPSRegisters.MEMWBALUOUTPUT);
+				Storage.setRegisterContents(instructionSet.getRd(), MIPSRegisters.MEMWBALUOUTPUT);
+				if (SystemUtils.dataHazardStackContains(instructionSet.getRd())) {
+					SystemUtils.removeDataHazard(instructionSet.getRd());
+				}
+			} else if (opcode.equals("BNEZ")) {
+				if (SystemUtils.dataHazardStackContains(instructionSet.getRs())) {
+					SystemUtils.removeDataHazard(instructionSet.getRs());
+				}
+			} else if (opcode.equals("SD")) {
+				if (SystemUtils.dataHazardStackContains(instructionSet.getRt())) {
+					SystemUtils.removeDataHazard(instructionSet.getRt());
+				}
 			}
 			wbProcess.logProcessClocking();
 			SystemUtils.removeFromActiveProcess(PipelineStage.WB);
@@ -97,64 +114,95 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 			} else if (opcode.equals("BNEZ") || opcode.equals("J")) {
 				if (MIPSRegisters.EXMEMCOND.equals(SET)) {
 					MIPSRegisters.PC = MIPSRegisters.EXMEMALUOUTPUT;
+					SystemUtils.removeFromActiveProcess(PipelineStage.EXE);
 					SystemUtils.removeFromActiveProcess(PipelineStage.ID);
-					SystemUtils.removeFromActiveProcess(PipelineStage.IF);
+					SystemUtils.setPCChanged(true);
+					SystemUtils.setTargetLine(instructionSet.getTargetLine());
 				}
 			}
 			memProcess.logProcessClocking();
 			memProcess.incrementStage();
 		}
 	}
-
+	
 	private void processExe() throws StorageInitializationException,
 			RegisterAddressOverFlowException, TrapException {
 		PipelineProcess exeProcess = SystemUtils.retrieveActiveProcess(PipelineStage.EXE);
 		if (null != exeProcess) {
 			InstructionSet instructionSet = exeProcess.getInstructionSet();
-			String opcode = instructionSet.getOpcode();
-			if (opcode.equals("DADD")) {
-				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
-				MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.DADD(instructionSet.getRs(), instructionSet.getRt());
-				MIPSRegisters.EXMEMCOND = NOT_SET;
-			} else if (opcode.equals("DSUB")) {
-				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
-				MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.DSUB(instructionSet.getRs(), instructionSet.getRt());
-				MIPSRegisters.EXMEMCOND = NOT_SET;
-			} else if (opcode.equals("XOR")) {
-				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
-				MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.XOR(instructionSet.getRs(), instructionSet.getRt());
-				MIPSRegisters.EXMEMCOND = NOT_SET;
-			} else if (opcode.equals("SLT")) {
-				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
-				MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.SLT(instructionSet.getRs(), instructionSet.getRt());
-				MIPSRegisters.EXMEMCOND = NOT_SET;
-			} else if (opcode.equals("AND")) {
-				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
-				MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.AND(instructionSet.getRs(), instructionSet.getRt());
-				MIPSRegisters.EXMEMCOND = NOT_SET;
-			} else if (opcode.equals("SD")) {
-				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
-				MIPSRegisters.EXMEMB = MIPSRegisters.IDEXB;
-				MIPSRegisters.EXMEMCOND = NOT_SET;
-			} else if (opcode.equals("LD")) {
-				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
-				Integer aluOutput = Integer.parseInt(MIPSRegisters.IDEXA, 2) + Integer.parseInt(MIPSRegisters.IDEXIMM, 2);
-				MIPSRegisters.EXMEMALUOUTPUT = Integer.toBinaryString(aluOutput);
-			} else if (opcode.equals("DADDI")) {
-				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
-				MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.DADDI(instructionSet.getRs(), instructionSet.getImm());
-				MIPSRegisters.EXMEMCOND = NOT_SET;
-			} else if (opcode.equals("BNEZ")) {
-				Integer aluOutput = Integer.parseInt(MIPSRegisters.IDEXNPC, 2) + Integer.parseInt(MIPSRegisters.IDEXIMM, 2);
-				MIPSRegisters.EXMEMALUOUTPUT = Integer.toBinaryString(aluOutput);
-				MIPSRegisters.EXMEMCOND = Integer.parseInt(MIPSRegisters.IDEXA, 2) != 0? SET : NOT_SET;
-			} else if (opcode.equals("J")) {
-				MIPSRegisters.EXMEMALUOUTPUT = retrieveJumpInstruction(instructionSet);
-				MIPSRegisters.EXMEMCOND = SET;
+			if (hasDataHazard(instructionSet)) {
+				SystemUtils.removeFromActiveProcess(PipelineStage.EXE);
+				SystemUtils.removeFromActiveProcess(PipelineStage.ID);
+				SystemUtils.setDataHazard(true);
+				SystemUtils.setTargetLine(instructionSet.getInstructionLine());
+			} else {
+				String opcode = instructionSet.getOpcode();
+				if (isALUInstruction(opcode)) {
+					SystemUtils.addDataHazard(instructionSet.getRd());
+				}
+				if (opcode.equals("DADD")) {
+					MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
+					MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.DADD(instructionSet.getRs(), instructionSet.getRt());
+					MIPSRegisters.EXMEMCOND = NOT_SET;
+				} else if (opcode.equals("DSUB")) {
+					MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
+					MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.DSUB(instructionSet.getRs(), instructionSet.getRt());
+					MIPSRegisters.EXMEMCOND = NOT_SET;
+				} else if (opcode.equals("XOR")) {
+					MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
+					MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.XOR(instructionSet.getRs(), instructionSet.getRt());
+					MIPSRegisters.EXMEMCOND = NOT_SET;
+				} else if (opcode.equals("SLT")) {
+					MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
+					MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.SLT(instructionSet.getRs(), instructionSet.getRt());
+					MIPSRegisters.EXMEMCOND = NOT_SET;
+				} else if (opcode.equals("AND")) {
+					MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
+					MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.AND(instructionSet.getRs(), instructionSet.getRt());
+					MIPSRegisters.EXMEMCOND = NOT_SET;
+				} else if (opcode.equals("SD")) {
+					MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
+					MIPSRegisters.EXMEMB = MIPSRegisters.IDEXB;
+					MIPSRegisters.EXMEMCOND = NOT_SET;
+				} else if (opcode.equals("LD")) {
+					MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
+					Integer aluOutput = Integer.parseInt(MIPSRegisters.IDEXA, 2) + Integer.parseInt(MIPSRegisters.IDEXIMM, 2);
+					MIPSRegisters.EXMEMALUOUTPUT = Integer.toBinaryString(aluOutput);
+				} else if (opcode.equals("DADDI")) {
+					MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
+					MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.DADDI(instructionSet.getRs(), instructionSet.getImm());
+					MIPSRegisters.EXMEMCOND = NOT_SET;
+				} else if (opcode.equals("BNEZ")) {
+					Integer aluOutput = Integer.parseInt(MIPSRegisters.IDEXNPC, 2) + Integer.parseInt(MIPSRegisters.IDEXIMM, 2);
+					MIPSRegisters.EXMEMALUOUTPUT = Integer.toBinaryString(aluOutput);
+					MIPSRegisters.EXMEMCOND = Integer.parseInt(MIPSRegisters.IDEXA, 2) != 0? SET : NOT_SET;
+				} else if (opcode.equals("J")) {
+					MIPSRegisters.EXMEMALUOUTPUT = retrieveJumpInstruction(instructionSet);
+					MIPSRegisters.EXMEMCOND = SET;
+				}
+				exeProcess.logProcessClocking();
+				exeProcess.incrementStage();
 			}
-			exeProcess.logProcessClocking();
-			exeProcess.incrementStage();
 		}
+	}
+	
+	private boolean hasDataHazard(InstructionSet instructionSet) {
+		String opcode = instructionSet.getOpcode();
+		if (opcode.equals("DADD") || opcode.equals("DSUB") || opcode.equals("XOR")
+				|| opcode.equals("SLT") || opcode.equals("AND") || opcode.equals("DADDI")) {
+			if (SystemUtils.dataHazardStackContains(instructionSet.getRd())) {
+				return true;
+			}
+		} else if (opcode.equals("BNEZ")) {
+			if (SystemUtils.dataHazardStackContains(instructionSet.getRs())) {
+				return true;
+			}
+		} else if (opcode.equals("SD")) {
+			if (SystemUtils.dataHazardStackContains(instructionSet.getRt())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void processID() {
@@ -169,16 +217,19 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 		}
 	}
 
-	private void processIF(Instruction instruction) throws JumpAddressException, OperandException, OpcodeNotSupportedException {
-		PipelineProcess ifProcess = buildPipelineProcess(instruction);
-		SystemUtils.addActiveProcess(ifProcess);
-		SystemUtils.addToAllProcess(ifProcess);
-		MIPSRegisters.IFIDIR = ifProcess.getInstructionSet().getHexInstruction();
-		String nextPC = incrementProgramCounter();
-		MIPSRegisters.IFIDNPC = nextPC;
-		MIPSRegisters.PC = nextPC;
-		ifProcess.logProcessClocking();
-		ifProcess.incrementStage();
+	private void processIF() throws JumpAddressException, OperandException, OpcodeNotSupportedException {
+		Instruction instruction = instructions.poll();
+		if (null != instruction) {
+			PipelineProcess ifProcess = buildPipelineProcess(instruction);
+			SystemUtils.addActiveProcess(ifProcess);
+			SystemUtils.addToAllProcess(ifProcess);
+			MIPSRegisters.IFIDIR = ifProcess.getInstructionSet().getHexInstruction();
+			String nextPC = incrementProgramCounter();
+			MIPSRegisters.IFIDNPC = nextPC;
+			MIPSRegisters.PC = nextPC;
+			ifProcess.logProcessClocking();
+			ifProcess.incrementStage();
+		}
 	}
 
 	private String incrementProgramCounter() {
