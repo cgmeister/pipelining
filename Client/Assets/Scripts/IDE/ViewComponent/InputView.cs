@@ -9,11 +9,14 @@ public class InputView : MonoBehaviour {
 	private GameObject _cameraGO;
 	private GameObject _backHighlightGO;
 	private GameObject _resetGO;
+	private GameObject _errorOnCompileGO;
+	
 	private UIInput _input;
 	private UILabel _inputLabel;
 	private UICamera _uiCamera;
 	private UIDraggablePanel _inputDraggable;
 	private int currentIndex;
+	private UICheckbox _errorOnCompileCheckBox;
 	
 	Vector2 scrollVect = new Vector2(1,1);
 	
@@ -47,12 +50,13 @@ public class InputView : MonoBehaviour {
 		IDEEmissaryList.textChangedEmissary.dispatch(inpStr);
 	}
 
-	public void init(GameObject inputGo, GameObject singleGO, GameObject fullGO, GameObject cameraGO, GameObject backHighlightGO, GameObject resetGO){	
+	public void init(GameObject inputGo, GameObject singleGO, GameObject fullGO, GameObject cameraGO, GameObject backHighlightGO, GameObject resetGO, GameObject errorOnCompileGO){	
 		_singleButtonGO = singleGO;
 		_fullButtonGO = fullGO;
 		_inputGO = inputGo;
 		_cameraGO = cameraGO;
 		_backHighlightGO = backHighlightGO;
+		_errorOnCompileGO = errorOnCompileGO;
 		_resetGO = resetGO;
 		initGUI();
 		addListeners();
@@ -64,6 +68,7 @@ public class InputView : MonoBehaviour {
 		_inputLabel = _input.transform.FindChild("Label").GetComponent<UILabel>();
 		_uiCamera = _cameraGO.GetComponent<UICamera>();
 		_inputDraggable = _input.GetComponent<UIDraggablePanel>();
+		_errorOnCompileCheckBox = _errorOnCompileGO.GetComponent<UICheckbox>();
 		_backHighlightGO.SetActive(false);
 	}
 	
@@ -76,6 +81,7 @@ public class InputView : MonoBehaviour {
 		UIEventListener.Get(_singleButtonGO).onClick += onSingleClickHandler;
 		UIEventListener.Get(_fullButtonGO).onClick += onFullClickHandler;
 		UIEventListener.Get(_resetGO).onClick += onResetClick;
+		UIEventListener.Get(_errorOnCompileGO).onClick += onCheckBoxClick;
 	}
 	
 	private void removeListeners(){
@@ -83,6 +89,12 @@ public class InputView : MonoBehaviour {
 		UIEventListener.Get(_singleButtonGO).onClick -= onSingleClickHandler;
 		UIEventListener.Get(_fullButtonGO).onClick -= onFullClickHandler;
 		UIEventListener.Get(_resetGO).onClick += onResetClick;
+		UIEventListener.Get(_errorOnCompileGO).onClick -= onCheckBoxClick;
+	}
+	
+	private void onCheckBoxClick(GameObject go){
+		Debug.Log(_errorOnCompileCheckBox.isChecked);
+		IDEEmissaryList.errorOnCompileButtonClickEmissary.dispatch(_errorOnCompileCheckBox.isChecked);
 	}
 	
 	private void onResetClick(GameObject go){

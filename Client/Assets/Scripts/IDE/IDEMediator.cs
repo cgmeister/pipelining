@@ -107,7 +107,7 @@ public class IDEMediator : MonoBehaviour {
 		_ideGUIVC.initGUIComponents();
 		
 		_inputView = gameObject.AddComponent<InputView>();
-		_inputView.init(_ideGUIVC.inputPanel, _ideGUIVC.singleButton, _ideGUIVC.fullButton, _ideGUIVC.camera, _ideGUIVC.inputBackHighlight, _ideGUIVC.resetButton);
+		_inputView.init(_ideGUIVC.inputPanel, _ideGUIVC.singleButton, _ideGUIVC.fullButton, _ideGUIVC.camera, _ideGUIVC.inputBackHighlight, _ideGUIVC.resetButton, _ideGUIVC.errorOnCompile);
 		
 		_registerView = gameObject.AddComponent<RegisterView>();
 		_registerView.init(_ideGUIVC.outputPanel, _ideGUIVC.registerTabButton);

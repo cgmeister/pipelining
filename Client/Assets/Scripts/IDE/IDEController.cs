@@ -9,7 +9,7 @@ public class IDEController : MonoBehaviour {
 	
 	private Validator _validatorLogic;
 	
-	private bool errorOnCompile = true;
+	private bool _errorOnCompile = true;
 	
 	public void init(){
 		initController();
@@ -25,6 +25,7 @@ public class IDEController : MonoBehaviour {
 		IDEEmissaryList.updatePipeline.add(onPipelineUpdate);
 		IDEEmissaryList.singleButtonClickEmissary.add(onSingleButtonClick);
 		IDEEmissaryList.singleButtonClickEmissary.add(onFullButtonClick);
+		IDEEmissaryList.errorOnCompileButtonClickEmissary.add(onCheckBoxClick);
 	}
 	
 	private void removeListeners(){
@@ -36,13 +37,16 @@ public class IDEController : MonoBehaviour {
 		IDEEmissaryList.updatePipeline.remove(onPipelineUpdate);
 		IDEEmissaryList.singleButtonClickEmissary.remove(onSingleButtonClick);
 		IDEEmissaryList.singleButtonClickEmissary.remove(onFullButtonClick);
+		IDEEmissaryList.errorOnCompileButtonClickEmissary.remove(onCheckBoxClick);
 	}
 	
-	private void onSingleButtonClick(){
-		if (errorOnCompile){
-			_validatorLogic.validateInstructionFromStringArray();
-		}
-		if (_ideProxy.IdeDO.errorList.Count == 0){
+	private void onCheckBoxClick(bool val){
+		_errorOnCompile = val;
+	}
+	
+	private void onSingleButtonClick(string inputStr){
+		checkTimeToValidate(inputStr, true);
+		if (_ideProxy.IdeDO.errorList.Count == 0 && inputStr.Length > 0){
 			Debug.Log(_ideProxy.IdeDO.currentInstIndex);
 			//Debug.Log(_ideProxy.IdeDO.tempInstList[_ideProxy.IdeDO.currentInstIndex]);
 			_ideProxy.setInstrList(_validatorLogic.InstList);
@@ -57,8 +61,9 @@ public class IDEController : MonoBehaviour {
 		}
 	}
 	
-	private void onFullButtonClick(){
-		if (_ideProxy.IdeDO.errorList.Count == 0){
+	private void onFullButtonClick(string inputStr){
+		checkTimeToValidate(inputStr, true);
+		if (_ideProxy.IdeDO.errorList.Count == 0  && inputStr.Length > 0){
 			_ideProxy.setInstrList(_validatorLogic.InstList);
 			_ideProxy.sendInstructionList(_ideProxy.IdeDO.tempInstList);
 		} else {
@@ -67,6 +72,17 @@ public class IDEController : MonoBehaviour {
 			_ideProxy.addErrorLog(err);
 			_ideMediator.updateErrorLogs(_ideProxy.IdeDO.errorList);
 		}
+	}
+	
+	private bool checkTimeToValidate(string str, bool inCompile){	
+		//Debug.Log(_errorOnCompile + " : " + inCompile);
+		bool executed = false;
+		if (_errorOnCompile == inCompile){
+			executed = true;
+			string[] procStr = _validatorLogic.processString(str);
+			_validatorLogic.validateInstructionFromStringArray(procStr);
+		}
+		return executed;
 	}
 	
 	#region update views 
@@ -88,10 +104,11 @@ public class IDEController : MonoBehaviour {
 	#endregion update views	
 	private void onInputTextChanged(string str){
 		_ideProxy.resetErrorLogs();
-		string[] procStr = _validatorLogic.processString(str);
+		
 		//Debug.Log(String.Join(",", procStr));
-		_validatorLogic.validateInstructionFromStringArray(procStr);
-		updateErrorOutput();
+		if (checkTimeToValidate(str, false)){
+			updateErrorOutput();
+		}
 	}
 	
 	private void onValidationErrorFound(ErrorType errType, int lineNum, int paramNum){

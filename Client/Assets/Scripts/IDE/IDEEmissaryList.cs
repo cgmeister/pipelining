@@ -5,6 +5,7 @@ public class IDEEmissaryList {
 	public static Emissary<string> singleButtonClickEmissary = new Emissary<string>();
 	public static Emissary<string> fullButtonClickEmissary = new Emissary<string>();
 	public static Emissary<string> textChangedEmissary = new Emissary<string>();
+	public static Emissary<bool> errorOnCompileButtonClickEmissary = new Emissary<bool>();
 	public static Emissary<ErrorType, int, int> validationErrorEmissary = new Emissary<ErrorType, int, int>(); // Error type, line number, param number
 	public static Emissary<int, int> memoryRequestButton = new Emissary<int, int>();
 	
