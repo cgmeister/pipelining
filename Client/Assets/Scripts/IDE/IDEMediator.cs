@@ -150,7 +150,7 @@ public class IDEMediator : MonoBehaviour {
 			ErrorType errType = errorList[x].errorType; 
 			str += errType.ToString(); 
 			
-			if (errType == ErrorType.ERROR_0020_REGISTER || errType == ErrorType.ERROR_0040_OFFSET || errType == ErrorType.ERROR_0030_IMMEDIATE || errType == ErrorType.ERROR_0060_JUMP){
+			if (errType == ErrorType.ERROR_0020_REGISTER || errType == ErrorType.ERROR_0040_OFFSET || errType == ErrorType.ERROR_0030_IMMEDIATE){
 				str += " : Line number " + errorList[x].lineNum; 
 				str += " : Parameter number " + errorList[x].paramNum + ".\n";
 			} else if(errType == ErrorType.ERROR_0080_SINGLEEXECUTION || errType == ErrorType.ERROR_0081_SINGLEEXECUTION_ERRORPERSISTS || errType == ErrorType.ERROR_0090_FULLEXECUTION || errType == ErrorType.ERROR_0091_FULLEXECUTION_ERRORPERSISTS){

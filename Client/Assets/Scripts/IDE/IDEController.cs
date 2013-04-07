@@ -54,6 +54,7 @@ public class IDEController : MonoBehaviour {
 			_ideProxy.setCurrentIndex(_ideProxy.IdeDO.currentInstIndex+1);
 			_ideProxy.sendInstruction(str);
 		} else {
+			_ideProxy.setCurrentIndex(0);
 			ErrorDC err = new ErrorDC();
 			err.errorType = ErrorType.ERROR_0081_SINGLEEXECUTION_ERRORPERSISTS;
 			_ideProxy.addErrorLog(err);

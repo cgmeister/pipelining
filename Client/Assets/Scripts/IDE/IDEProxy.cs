@@ -22,7 +22,20 @@ public class IDEProxy {
 	}
 
 	public void addErrorLog(ErrorDC errItem){
-		_ideDO.errorList.Add(errItem);
+		if (!checkIfHasErrorItem(errItem)){
+			_ideDO.errorList.Add(errItem);
+		}
+	}
+	
+	private bool checkIfHasErrorItem(ErrorDC errItem){
+		bool exists = false;
+		int len = _ideDO.errorList.Count;
+		for (int x=0; x<len; x++){
+			if (_ideDO.errorList[x].errorType == errItem.errorType && _ideDO.errorList[x].lineNum == errItem.lineNum && _ideDO.errorList[x].paramNum == errItem.paramNum){
+				exists = true;
+			}
+		}
+		return exists;
 	}
 	
 	public void resetErrorLogs(){
