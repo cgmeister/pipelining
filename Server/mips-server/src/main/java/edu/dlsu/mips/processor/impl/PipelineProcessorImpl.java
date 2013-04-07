@@ -77,14 +77,6 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 				if (SystemUtils.dataHazardStackContains(instructionSet.getRd())) {
 					SystemUtils.removeDataHazard(instructionSet.getRd());
 				}
-			} else if (opcode.equals("BNEZ")) {
-				if (SystemUtils.dataHazardStackContains(instructionSet.getRs())) {
-					SystemUtils.removeDataHazard(instructionSet.getRs());
-				}
-			} else if (opcode.equals("SD")) {
-				if (SystemUtils.dataHazardStackContains(instructionSet.getRt())) {
-					SystemUtils.removeDataHazard(instructionSet.getRt());
-				}
 			}
 			wbProcess.logProcessClocking();
 			SystemUtils.removeFromActiveProcess(PipelineStage.WB);
