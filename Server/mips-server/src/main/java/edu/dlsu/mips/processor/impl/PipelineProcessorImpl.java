@@ -152,6 +152,8 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 				MIPSRegisters.EXMEMALUOUTPUT = retrieveJumpInstruction(instructionSet);
 				MIPSRegisters.EXMEMCOND = SET;
 			}
+			exeProcess.logProcessClocking();
+			exeProcess.incrementStage();
 		}
 	}
 

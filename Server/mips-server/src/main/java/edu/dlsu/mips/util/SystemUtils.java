@@ -50,4 +50,8 @@ public class SystemUtils {
 		return Integer.toBinaryString(pcIntVal);
 	}
 
+	public static Collection<PipelineProcess> getAllProcesses() {
+		return allProcesses;
+	}
+
 }
