@@ -67,7 +67,7 @@ public class Emissary<T, U, V>  {
 	        } else {
 				//Debug.Log("No event listeners found");
 			}
-		} catch (Exception e){
+		} catch (NullReferenceException e){
 			Debug.Log("Dispatch Error: " + e.Message);
 		}
     }
@@ -128,7 +128,7 @@ public class Emissary<T, U>  {
 	        } else {
 				//Debug.Log("No event listeners found");
 			}
-		} catch (Exception e){
+		} catch (NullReferenceException e){
 			Debug.Log("Dispatch Error: " + e.Message);
 		}
     }
@@ -189,7 +189,7 @@ public class Emissary<T>  {
 	        } else {
 				//Debug.Log("No event listeners found");
 			}
-		} catch (Exception e){
+		} catch (NullReferenceException e){
 			Debug.Log("Dispatch Error: " + e.Message);
 		}
     }
@@ -243,7 +243,7 @@ public class Emissary  {
 	        } else {
 				//Debug.Log("No event listeners found");
 			}
-		} catch (Exception e){
+		} catch (NullReferenceException e){
 			Debug.Log("Dispatch error: " + e.Message);
 		}
     }

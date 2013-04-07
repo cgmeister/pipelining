@@ -8,6 +8,7 @@ public class InputView : MonoBehaviour {
 	private GameObject _fullButtonGO;
 	private GameObject _cameraGO;
 	private GameObject _backHighlightGO;
+	private GameObject _resetGO;
 	private UIInput _input;
 	private UILabel _inputLabel;
 	private UICamera _uiCamera;
@@ -15,6 +16,8 @@ public class InputView : MonoBehaviour {
 	private int currentIndex;
 	
 	Vector2 scrollVect = new Vector2(1,1);
+	
+	public Emissary resetButtonEmissary = new Emissary();
 	
 	// Use this for initialization
 	void Start () {
@@ -44,12 +47,13 @@ public class InputView : MonoBehaviour {
 		IDEEmissaryList.textChangedEmissary.dispatch(inpStr);
 	}
 
-	public void init(GameObject inputGo, GameObject singleGO, GameObject fullGO, GameObject cameraGO, GameObject backHighlightGO){	
+	public void init(GameObject inputGo, GameObject singleGO, GameObject fullGO, GameObject cameraGO, GameObject backHighlightGO, GameObject resetGO){	
 		_singleButtonGO = singleGO;
 		_fullButtonGO = fullGO;
 		_inputGO = inputGo;
 		_cameraGO = cameraGO;
 		_backHighlightGO = backHighlightGO;
+		_resetGO = resetGO;
 		initGUI();
 		addListeners();
 	}
@@ -70,21 +74,28 @@ public class InputView : MonoBehaviour {
 	private void addListeners(){
 		UIEventListener.Get(_inputGO).onInput += onTextChanged;
 		UIEventListener.Get(_singleButtonGO).onClick += onSingleClickHandler;
-		UIEventListener.Get(_singleButtonGO).onClick += onFullClickHandler;
+		UIEventListener.Get(_fullButtonGO).onClick += onFullClickHandler;
+		UIEventListener.Get(_resetGO).onClick += onResetClick;
 	}
 	
 	private void removeListeners(){
 		UIEventListener.Get(_inputGO).onInput -= onTextChanged;
 		UIEventListener.Get(_singleButtonGO).onClick -= onSingleClickHandler;
-		UIEventListener.Get(_singleButtonGO).onClick -= onFullClickHandler;
+		UIEventListener.Get(_fullButtonGO).onClick -= onFullClickHandler;
+		UIEventListener.Get(_resetGO).onClick += onResetClick;
+	}
+	
+	private void onResetClick(GameObject go){
+		_input.text = "";
+		resetButtonEmissary.dispatch();
 	}
 		
 	private void onSingleClickHandler(GameObject go){
-		IDEEmissaryList.singleButtonClickEmissary.dispatch();
+		IDEEmissaryList.singleButtonClickEmissary.dispatch(_input.text);
 	}
 	
 	private void onFullClickHandler(GameObject go){
-		IDEEmissaryList.fullButtonClickEmissary.dispatch();
+		IDEEmissaryList.fullButtonClickEmissary.dispatch(_input.text);
 	}
 	
 	public void show(){
