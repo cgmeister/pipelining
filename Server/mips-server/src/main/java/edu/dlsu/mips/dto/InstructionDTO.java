@@ -1,8 +1,6 @@
 package edu.dlsu.mips.dto;
 
 import edu.dlsu.mips.domain.InstructionSet;
-import edu.dlsu.mips.domain.MIPSRegisters;
-import edu.dlsu.mips.domain.ProcessStatus;
 import edu.dlsu.mips.exception.JumpAddressException;
 import edu.dlsu.mips.exception.OpcodeNotSupportedException;
 import edu.dlsu.mips.exception.OperandException;

@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import edu.dlsu.mips.domain.Instruction;
+import edu.dlsu.mips.domain.ProcessStatus;
 import edu.dlsu.mips.dto.InstructionDTO;
+import edu.dlsu.mips.dto.PipelineDTO;
 import edu.dlsu.mips.dto.ProcessStatusDTO;
 import edu.dlsu.mips.exception.JumpAddressException;
 import edu.dlsu.mips.exception.MemoryAddressOverFlowException;
@@ -18,6 +20,7 @@ import edu.dlsu.mips.exception.RegisterAddressOverFlowException;
 import edu.dlsu.mips.exception.StorageInitializationException;
 import edu.dlsu.mips.exception.TrapException;
 import edu.dlsu.mips.processor.PipelineProcessor;
+import edu.dlsu.mips.util.SystemUtils;
 
 @Controller
 @RequestMapping("/Instruction")
@@ -37,12 +40,21 @@ public class InstructionController {
 		
 		InstructionDTO instructionDTO = InstructionDTO.getInstance();
 		instructionDTO.setInstruction(instruction);
+		instructionDTO.getInstructionSet().getHexInstruction();
 		
 		Instruction instructionDomain = Instruction.newInstance(instruction);
 		ProcessStatusDTO processStatusDTO = ProcessStatusDTO.getInstance();
-		
+	
 		try {
-			processStatusDTO.setProcessStatus(pipelineProcessor.processInstruction(instructionDomain));
+			ProcessStatus processStatus = pipelineProcessor.processInstruction(instructionDomain);
+			if(processStatus == ProcessStatus.HAZARD || processStatus == ProcessStatus.JUMP){
+				processStatusDTO.setJumpTo(SystemUtils.getTargetLine());
+			} else {
+				processStatusDTO.setJumpTo(null);
+			}
+			processStatusDTO.setProcessStatus(processStatus);
+			PipelineDTO.getInstance().updatePipelineStages();
+			
 		} catch (JumpAddressException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

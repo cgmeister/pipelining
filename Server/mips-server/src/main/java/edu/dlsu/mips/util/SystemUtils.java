@@ -82,6 +82,10 @@ public class SystemUtils {
 	public static Collection<PipelineProcess> getAllProcesses() {
 		return allProcesses;
 	}
+	
+	public static Collection<PipelineProcess> getActiveProcesses() {
+		return activeProcesses;
+	}
 
 	public static boolean isPCChanged() {
 		return isPCChanged;

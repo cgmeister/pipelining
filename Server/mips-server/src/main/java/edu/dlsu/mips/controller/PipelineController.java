@@ -14,7 +14,8 @@ public class PipelineController {
 	@RequestMapping(value = "/pipeline", method = RequestMethod.GET)
 	@ResponseBody
 	public PipelineDTO viewPipelineMap() {
-		return PipelineDTO.newInstance(PipelineStage.IF);
+		
+		return PipelineDTO.getInstance();
 	}
 	
 }

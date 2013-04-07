@@ -84,5 +84,25 @@ public class MIPSRegisters {
 		return MEMWBLMD;
 	}
 	
+	public void initialize(){
+		PC = "00000000";
+		IFIDNPC = "00000000";
+		IFIDIR = null;
+
+		IDEXIR = null;
+		IDEXA = null;
+		IDEXB = null;
+		IDEXIMM = null;
+		IDEXNPC = null;
+		EXMEMIR = null;
+		EXMEMALUOUTPUT = null;
+		EXMEMB = null;
+		EXMEMCOND = null;
+
+		MEMWBIR = null;
+		MEMWBALUOUTPUT = null;
+		MEMWBLMD = null;
+	}
+	
 
 }
