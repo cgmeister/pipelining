@@ -54,7 +54,7 @@ public class IDEGUIVC {
 		resetButton = GameObject.Find(BUTTON_RESET);
 		
 		memoryStartInput = GameObject.Find(INPUT_MEMORYSTART);
-		memoryEndInput = GameObject.Find(INPUT_MEMORYSTART);
+		memoryEndInput = GameObject.Find(INPUT_MEMORYEND);
 		requestButton = GameObject.Find(BUTTON_MEMORYREQUESTBUTTON);
 		
 		inputBackHighlight = GameObject.Find(INPUT_BACKHIGHLIGHT);

@@ -91,11 +91,11 @@ public class InputView : MonoBehaviour {
 	}
 		
 	private void onSingleClickHandler(GameObject go){
-		IDEEmissaryList.singleButtonClickEmissary.dispatch();
+		IDEEmissaryList.singleButtonClickEmissary.dispatch(_input.text);
 	}
 	
 	private void onFullClickHandler(GameObject go){
-		IDEEmissaryList.fullButtonClickEmissary.dispatch();
+		IDEEmissaryList.fullButtonClickEmissary.dispatch(_input.text);
 	}
 	
 	public void show(){

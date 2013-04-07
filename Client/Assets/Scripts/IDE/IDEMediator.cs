@@ -21,7 +21,7 @@ public class IDEMediator : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		
 	}
 	
 	public void init(){
@@ -64,7 +64,7 @@ public class IDEMediator : MonoBehaviour {
 	}
 	
 	private void onMemoryRequest(int start, int end){
-		
+		Debug.Log("Memory request sent: " + start + " - " + end);
 	}
 	
 	private void onMemoryTabClicked(){
@@ -99,6 +99,7 @@ public class IDEMediator : MonoBehaviour {
 		_pipelineView.setTabButtonActive(_tabList[(int)TabType.PIPELINEMAP]);
 		_registerView.setTabButtonActive(_tabList[(int)TabType.REGISTER]);
 		_memoryView.setTabButtonActive(_tabList[(int)TabType.MEMORY]);
+		_memoryView.setInputActivity(_tabList[(int)TabType.MEMORY]);
 	}
 	
 	private void initViewComponents(){
@@ -124,37 +125,62 @@ public class IDEMediator : MonoBehaviour {
 		_memoryView.init(_ideGUIVC.outputPanel, _ideGUIVC.memoryTabButton, _ideGUIVC.memoryStartInput, _ideGUIVC.memoryEndInput, _ideGUIVC.requestButton);
 	}
 	
-	public void destroy(){
-		removeListeners();
-		destroyViews();
+	public void destroy(){ 
+		removeListeners(); 
+		destroyViews(); 
+	} 
+	
+	public void destroyViews(){ 
+		_opcodeView.destroy(); 
+		DestroyImmediate(_opcodeView);  
+		_errorView.destroy(); 
+		DestroyImmediate(_errorView); 
+		_pipelineView.destroy(); 
+		DestroyImmediate(_pipelineView); 
+		_registerView.destroy(); 
+		DestroyImmediate(_registerView); 
+		_inputView.destroy(); 
+		DestroyImmediate(_inputView); 
 	}
 	
-	public void destroyViews(){
-		_opcodeView.destroy();
-		DestroyImmediate(_opcodeView);
-		_errorView.destroy();
-		DestroyImmediate(_errorView);
-		_pipelineView.destroy();
-		DestroyImmediate(_pipelineView);
-		_registerView.destroy();
-		DestroyImmediate(_registerView);
-		_inputView.destroy();
-		DestroyImmediate(_inputView);
-	}
-	
-	public void updateErrorLogs(List<ErrorDC> errorList){
+	public void updateErrorLogs(List<ErrorDC> errorList){ 
 		int len = errorList.Count;
 		string str = ""; 
-		for (int x=0; x<len; x++){
-			ErrorType errType = errorList[x].errorType;
-			str += errType.ToString();
-			str += " : Line number " + errorList[x].lineNum;
+		for (int x=0; x<len; x++){ 
+			ErrorType errType = errorList[x].errorType; 
+			str += errType.ToString(); 
+			
 			if (errType == ErrorType.ERROR_0020_REGISTER || errType == ErrorType.ERROR_0040_OFFSET || errType == ErrorType.ERROR_0030_IMMEDIATE || errType == ErrorType.ERROR_0060_JUMP){
+				str += " : Line number " + errorList[x].lineNum; 
 				str += " : Parameter number " + errorList[x].paramNum + ".\n";
+			} else if(errType == ErrorType.ERROR_0080_SINGLEEXECUTION || errType == ErrorType.ERROR_0081_SINGLEEXECUTION_ERRORPERSISTS || errType == ErrorType.ERROR_0090_FULLEXECUTION || errType == ErrorType.ERROR_0091_FULLEXECUTION_ERRORPERSISTS){
+				str += ".\n";
 			} else {
+				str += " : Line number " + errorList[x].lineNum; 
 				str += ".\n";
 			}
 		}
 		_errorView.setErrorLabel(str);
+	}
+	
+	public void updateViewLabel(TabType type, string str){
+		switch(type){
+			case TabType.MEMORY:{
+				_memoryView.setmemoryLabel(str);
+				break;
+			}
+			case TabType.OPCODE:{
+				_opcodeView.setOpcodeLabel(str);
+				break;
+			}
+			case TabType.PIPELINEMAP:{
+				_pipelineView.setPipelinMapLabel(str);
+				break;
+			}
+			case TabType.REGISTER:{
+				_registerView.setRegisterLabel(str);
+				break;
+			}
+		}
 	}
 }
