@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import edu.dlsu.mips.dto.MemoryDTO;
 import edu.dlsu.mips.exception.MemoryAddressOverFlowException;
 import edu.dlsu.mips.exception.StorageInitializationException;
-import edu.dlsu.mips.util.Storage;
 
 @Controller
 @RequestMapping("/Memory")
@@ -29,7 +28,7 @@ public class MemoryController {
 		@RequestMapping(value = "/set", method = RequestMethod.GET)
 		@ResponseBody
 		public String setMemory(@RequestParam("address") String address, @RequestParam("value") String value){
-			Storage.initializeStorage();
+			
 			MemoryDTO memoryDTO = MemoryDTO.getInstance();
 			try {
 				memoryDTO.setMemory(address, value);
