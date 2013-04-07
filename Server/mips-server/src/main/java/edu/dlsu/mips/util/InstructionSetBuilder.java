@@ -61,6 +61,7 @@ public class InstructionSetBuilder {
 		String type = opcodeType.get(tokens[0]);
 		instructionSet.setOpcode(tokens[0]);
 		instructionSet.setType(type);
+		instructionSet.setInstructionLine(Integer.parseInt(tokens[tokens.length-1]));
 		if (type.equals("R")) {
 			decodeRType(instructionSet);
 		} else if (type.equals("I")) {
@@ -80,7 +81,7 @@ public class InstructionSetBuilder {
 		int nameIntValue = Integer.parseInt(tokens[1]);
 		if ((nameIntValue * 4) % 4 != 0) {
 			throw new JumpAddressException();
-		} else if (tokens.length != 2) {
+		} else if (tokens.length != 3) {
 			throw new OperandException("J Types must have 1 argument <J args0>");
 		} else {
 			String opcodeBitString = BitStringUtils
@@ -114,7 +115,7 @@ public class InstructionSetBuilder {
 	private static void decodeRType(InstructionSet instructionSet) throws OperandException {
 		String instruction = instructionSet.getInstruction();
 		String[] tokens = instruction.split(" ");
-		String[] operands = new String[3];
+		String[] operands = new String[4];
 		int operandCount = 0;
 		for (int i = 1; i < tokens.length; i++) {
 			operandCount++;
@@ -124,13 +125,13 @@ public class InstructionSetBuilder {
 			if (tokens[i] == null || tokens[i] == "") {
 				break;
 			} else if (!Character.toString(tokens[i].charAt(0))
-					.equalsIgnoreCase("R")) {
+					.equalsIgnoreCase("R") && i!=4) {
 				throw new OperandException(
 						"Register Operands must begin with R");
 			}
 			operands[i - 1] = tokens[i];
 		}
-		if (operandCount != 3) {
+		if (operandCount != 4) {
 			throw new OperandException(
 					"R Types must have 3 arguments <R args0, args1, args2>");
 		}
@@ -183,7 +184,7 @@ public class InstructionSetBuilder {
 		int opcodeIntValue = opcodeValue.get(tokens[0]);
 		if (keyword.equals("BNEZ")) {
 			int operandCount = 0;
-			String[] operands = new String[3];
+			String[] operands = new String[4];
 			for (int i = 1; i < tokens.length; i++) {
 				operandCount++;
 				if (tokens[i].charAt(tokens[i].length() - 1) == ',') {
@@ -199,9 +200,9 @@ public class InstructionSetBuilder {
 				}
 				operands[i - 1] = tokens[i];
 			}
-			if (operandCount != 3) {
+			if (operandCount != 4) {
 				throw new OperandException(
-						"BNEZ must have 3 arguments <BNEZ rs, currentPc, targetPc>");
+						"BNEZ must have 3 arguments <BNEZ rs, currentline, targetline>");
 			}
 			int rsAddressIntVal = Integer.parseInt(operands[0].substring(1,
 					operands[0].length()));
@@ -241,7 +242,7 @@ public class InstructionSetBuilder {
 			int operandCount = 0;
 			String rs = "";
 			String imm = "";
-			String[] operands = new String[3];
+			String[] operands = new String[4];
 			for (int i = 1; i < tokens.length; i++) {
 				operandCount++;
 				if (tokens[i].charAt(tokens[i].length() - 1) == ',') {
@@ -280,7 +281,7 @@ public class InstructionSetBuilder {
 				}
 
 			}
-			if (operandCount != 2) {
+			if (operandCount != 3) {
 				throw new OperandException(
 						"LD/SD must have 2 arguments <LD/SD rd, offset(rs)>");
 			}
@@ -323,7 +324,7 @@ public class InstructionSetBuilder {
 
 		} else {
 			int operandCount = 0;
-			String[] operands = new String[3];
+			String[] operands = new String[4];
 			for (int i = 1; i < tokens.length; i++) {
 				operandCount++;
 				if (tokens[i].charAt(tokens[i].length() - 1) == ',') {
@@ -345,7 +346,7 @@ public class InstructionSetBuilder {
 				operands[i - 1] = tokens[i];
 
 			}
-			if (operandCount != 3) {
+			if (operandCount != 4) {
 				throw new OperandException(
 						"DADDI must have 3 arguments <DADDI rd, rs, imm>");
 			}
