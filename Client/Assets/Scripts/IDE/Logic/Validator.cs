@@ -45,16 +45,20 @@ public class Validator {
 			if (strArr[x] == ""){
 				continue;
 			}
-			string[] newStrArr = new string[]{""};
+			string[] newStrArr = new string[]{};
 			string[] jmpStrArr = strArr[x].Split(new string[]{":"}, StringSplitOptions.None);
+			//Debug.Log(jmpStrArr.Length);
 			if (jmpStrArr.Length > 1){
 				if (checkAndValidateJumpLabel(jmpStrArr[0], x+1, -1)){
 					validateInstruction(jmpStrArr[1], x+1);
+					 newStrArr = jmpStrArr[1].Split(new string[]{""}, StringSplitOptions.None);
+					_instList.Add(newStrArr);
 				}
 			} else {
 				validateInstruction(strArr[x], x+1);
+				newStrArr = strArr[x].Split(new string[]{""}, StringSplitOptions.None);
+				_instList.Add(newStrArr);
 			}
-			_instList.Add(newStrArr);
 		}
 	}
 	
@@ -64,9 +68,9 @@ public class Validator {
 		string[] strArr = str.Split(new string[]{","}, StringSplitOptions.None);
 		
 		opcodeType = getOpcodeType(strArr[0]);
-		Debug.Log("OPCODE: " + opcodeType.ToString());
+		//Debug.Log("OPCODE: " + opcodeType.ToString());
 		if (opcodeType != OpcodeType.Nil){				
-			Debug.Log(strArr.Length);
+			//Debug.Log(strArr.Length);
 			instType = getInststructionType(opcodeType);
 			if(strArr.Length > 1){
 				checkForTypes(strArr, opcodeType, lineNum, instType);
@@ -86,13 +90,19 @@ public class Validator {
 			string[] jmpStrArr = strArr[x].Split(new string[]{":"}, StringSplitOptions.None); 
 			if (jmpStrArr.Length > 1){
 				string jmpStr = jmpStrArr[0];
+				Debug.Log(jmpStr);
 				char jmpChar = jmpStr[0];
 				if (Char.IsDigit(jmpChar)){  
-					_jumpList.Add(jmpStr); 
+					_jumpList.Add(jmpStr);
 				} else { 
-					_jumpList.Add("nil");
+					
 				}
+			} else {
+				_jumpList.Add("nil");
 			}
+			
+			//Debug.Log(_jumpList.Count);
+			//Debug.Log(_jumpList[_jumpList.Count-1]);
 		}
 	}
 
@@ -102,7 +112,7 @@ public class Validator {
 		if (jmpStrArr.Length > 1){
 			string jmpStr = jmpStrArr[0];
 			char jmpChar = jmpStr[0];
-			if (Char.IsDigit(jmpChar)){
+			if (!Char.IsDigit(jmpChar)){
 				hasJump = true;
 			} else {
 				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0060_JUMP, lineNum, paramNum);
@@ -139,9 +149,7 @@ public class Validator {
 					break;
 				}
 			}
-		}
-	 
-		
+		}	
 	}
 	
 	private void sendNumArgError(int len ,int max, int lineNum){
@@ -153,56 +161,43 @@ public class Validator {
 	
 	private void checkIType(string[] strArr, OpcodeType opcodeType, int lineNum){
 		int len = strArr.Length;
+		Debug.Log("ITLen: " + len);
 		switch(opcodeType){
 			case OpcodeType.BNEZ:{				
 				if (len <= 3){
-					if (len > 1){
-						validateRegister(strArr[1], lineNum, 1);
-					} 
-					if (len > 2){
-						validateJump(strArr[2], lineNum, 2);
-					}
+					if (len > 1) validateRegister(strArr[1], lineNum, 1); else sendNumArgError(strArr.Length, 3, lineNum);
+					if (len > 2) validateJump(strArr[2], lineNum, 2); else sendNumArgError(strArr.Length, 3, lineNum);
+				} else {
+					sendNumArgError(strArr.Length, 3, lineNum);
 				}
-				sendNumArgError(strArr.Length, 3, lineNum);
 				break;
 			}
 			case OpcodeType.LD:{
 				if (len <= 3){
-					if (len > 1){
-						validateRegister(strArr[1], lineNum, 1);
-					} 
-					if (len > 2){
-						validateImmediateOffset(strArr[2], lineNum, 2, true);
-					}
+					if (len > 1) validateRegister(strArr[1], lineNum, 1); else sendNumArgError(strArr.Length, 3, lineNum);
+					if (len > 2) validateImmediateOffset(strArr[2], lineNum, 2, true); else sendNumArgError(strArr.Length, 3, lineNum);
+				} else {
+					sendNumArgError(strArr.Length, 3, lineNum);
 				}
-				sendNumArgError(strArr.Length, 4, lineNum);
 				break;
 			}
 			case OpcodeType.SD:{
 				if (len <= 3){
-					if (len > 1){
-						validateRegister(strArr[1], lineNum, 1);
-					} 
-					if(len > 2){
-						validateImmediateOffset(strArr[2], lineNum, 2, true);
-					}
+					if (len > 1) validateRegister(strArr[1], lineNum, 1); else sendNumArgError(strArr.Length, 3, lineNum);
+					if(len > 2)	validateImmediateOffset(strArr[2], lineNum, 2, true); else sendNumArgError(strArr.Length, 3, lineNum);
+				} else {
+					sendNumArgError(strArr.Length, 3, lineNum);
 				}
-				sendNumArgError(strArr.Length, 4, lineNum);
 				break;
 			}
 			case OpcodeType.DADDI:{
-				if (strArr.Length <= 4){
-					if (len > 1){
-						validateRegister(strArr[1], lineNum, 1);
-					}	
-					if (len > 2){
-						validateRegister(strArr[2], lineNum, 2);
-					}
-					if (len > 3){
-						validateImmediateOffset(strArr[3], lineNum, 3, false);
-					}
+				if (len <= 4){
+					if (len > 1) validateRegister(strArr[1], lineNum, 1); else sendNumArgError(strArr.Length, 4, lineNum);
+					if (len > 2) validateRegister(strArr[2], lineNum, 2); else sendNumArgError(strArr.Length, 4, lineNum);
+					if (len > 3) validateImmediateOffset(strArr[3], lineNum, 3, false); else sendNumArgError(strArr.Length, 4, lineNum);
+				} else {
+					sendNumArgError(strArr.Length, 4, lineNum);
 				}
-				sendNumArgError(strArr.Length, 3, lineNum);
 				break;
 			}
 		}
@@ -333,49 +328,117 @@ public class Validator {
 	
 	private bool validateImmediateOffset(string str, int lineNum, int paramNum, bool isOffset){
 		bool valid = false;
+		Debug.Log("Validate immediate");
 		if (isOffset){
 			string[] offArr = str.Split(new string[]{"("}, StringSplitOptions.None);
+			Debug.Log("string length: " + offArr.Length);
 			if (offArr.Length == 2){
 				// check immediate
 				string offStr = offArr[0];
 				string regStr = offArr[1];
-				string comRegStr = regStr.Remove(regStr.Length-1);
-				if (offStr.Length != 4 && checkIfAllAreDigits(comRegStr)){
+				string comRegStr;
+				Debug.Log(regStr.Length);
+				if (regStr.Length > 0){
+					comRegStr = regStr.Remove(regStr.Length-1);
+					if (regStr[regStr.Length -1] != ')'){
+						validateRegister(regStr, lineNum, paramNum);						
+						IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0040_OFFSET, lineNum, paramNum);
+						Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0040_OFFSET));
+						IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0050_SYNTAX, lineNum, paramNum);
+						Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0050_SYNTAX));
+					} else {
+						validateRegister(comRegStr, lineNum, paramNum);						
+					}
+				} else {	
+					IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0020_REGISTER, lineNum, paramNum);
+					Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0020_REGISTER));
+					IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0040_OFFSET, lineNum, paramNum);
+					Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0040_OFFSET));
+				}
+				if (offStr.Length != 4 || !checkIfAllAreHex(offStr)){
 					IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0030_IMMEDIATE, lineNum, paramNum);
 					Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0030_IMMEDIATE));
-				} else if (regStr[regStr.Length -1] != ')' && !validateRegister(comRegStr, lineNum, paramNum)){
-				} else {
-					valid = true;
 				}
+			} else if(str.Length != 4 || !checkIfAllAreHex(str)){
+				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0030_IMMEDIATE, lineNum, paramNum);
+				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0030_IMMEDIATE));
+				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0040_OFFSET, lineNum, paramNum);
+				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0040_OFFSET));
 			} else {
+				Debug.Log("test 1");
 				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0040_OFFSET, lineNum, paramNum);
 				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0040_OFFSET));
 			}
 		} else {
-			
-			if (str[0] != '#'){
-				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0030_IMMEDIATE, lineNum, paramNum);
-				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0030_IMMEDIATE));
-			} else {
-				string digitStr = str.Remove(0,1);
-				if (!checkIfAllAreDigits(digitStr)){
+			if (str.Length > 0){
+				Debug.Log(str[0]);
+				if (str[0] != '#'){
 					IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0030_IMMEDIATE, lineNum, paramNum);
 					Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0030_IMMEDIATE));
+				} else {
+					string digitStr = str.Remove(0,1);
+					if (digitStr.Length == 4 ){
+						if (!checkIfAllAreHex(digitStr)){
+							IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0030_IMMEDIATE, lineNum, paramNum);
+							Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0030_IMMEDIATE));
+						}
+					} else {
+						IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0030_IMMEDIATE, lineNum, paramNum);
+						Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0030_IMMEDIATE));
+					}
 				}
+			} else {
+				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0030_IMMEDIATE, lineNum, paramNum);
+				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0030_IMMEDIATE));
 			}
 		}
 		return valid;
 	}
 	
-	private bool checkIfAllAreDigits(string str){
+	private bool checkIfAllAreHex(string str){
 		int len = str.Length;
-		bool notNumeric = false;
+		bool allHex = true;
 		for (int x=0; x<len; x++){
-			if (!Char.IsDigit(str[x])){
-				notNumeric = true;
+			if (x > 3){
+				break;
+			}
+			if (!Char.IsDigit(str[x]) && !checkIfHexChar(str[x])){
+				allHex = false;
+				break;
+			} 
+		}
+		return allHex;
+	} 
+	
+	private bool checkIfHexChar(char chr){
+		bool isHexChar = false;
+		switch(chr){
+			case 'A':{
+				isHexChar = true;
+				break;
+			}
+			case 'B':{
+				isHexChar = true;
+				break;
+			}
+			case 'C':{
+				isHexChar = true;
+				break;
+			}
+			case 'D':{
+				isHexChar = true;
+				break;
+			}
+			case 'E':{
+				isHexChar = true;
+				break;
+			}
+			case 'F':{
+				isHexChar = true;
+				break;
 			}
 		}
-		return notNumeric;
+		return isHexChar;
 	}
 	
 	private void validateJump(string str, int lineNum, int paramNum){
@@ -388,7 +451,8 @@ public class Validator {
 			}
 		}
 		if (!valid){
-			IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0060_JUMP, lineNum, paramNum);
+			IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0061_JUMP_NOJUMPABLEINSTRUCTION, lineNum, paramNum);
+			Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0061_JUMP_NOJUMPABLEINSTRUCTION));
 		}
 	}
 }
