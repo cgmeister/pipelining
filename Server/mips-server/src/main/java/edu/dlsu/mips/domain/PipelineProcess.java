@@ -1,5 +1,6 @@
 package edu.dlsu.mips.domain;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import edu.dlsu.mips.util.SystemUtils;
@@ -8,7 +9,7 @@ public class PipelineProcess {
 
 	private PipelineStage pipelineStage;
 	private InstructionSet instructionSet;
-	private Map<Integer, String> processClocking;
+	private Map<Integer, String> processClocking = new HashMap<Integer, String>();
 
 	private PipelineProcess(InstructionSet instructionSet) {
 		this.pipelineStage = PipelineStage.IF;

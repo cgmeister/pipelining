@@ -1,7 +1,9 @@
 package edu.dlsu.mips.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 
@@ -11,9 +13,9 @@ import edu.dlsu.mips.domain.PipelineStage;
 public class SystemUtils {
 
 	public static int clockCycle = 0;
-	private static Collection<PipelineProcess> activeProcesses;
-	private static Collection<PipelineProcess> allProcesses;
-	private static HashSet<String> dataHazardStack;
+	private static Collection<PipelineProcess> activeProcesses = new ArrayList<PipelineProcess>();
+	private static Collection<PipelineProcess> allProcesses = new ArrayList<PipelineProcess>();
+	private static Set<String> dataHazardStack = new HashSet<String>();
 	private static boolean isPCChanged;
 	private static boolean hasDataHazard;
 	private static int targetLine;
