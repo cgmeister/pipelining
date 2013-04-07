@@ -1,10 +1,13 @@
 package edu.dlsu.mips.processor.impl;
 
+import java.util.Queue;
+
 import edu.dlsu.mips.domain.Instruction;
 import edu.dlsu.mips.domain.InstructionSet;
 import edu.dlsu.mips.domain.MIPSRegisters;
 import edu.dlsu.mips.domain.PipelineProcess;
 import edu.dlsu.mips.domain.PipelineStage;
+import edu.dlsu.mips.domain.ProcessStatus;
 import edu.dlsu.mips.exception.JumpAddressException;
 import edu.dlsu.mips.exception.MemoryAddressOverFlowException;
 import edu.dlsu.mips.exception.OpcodeNotSupportedException;
@@ -21,18 +24,35 @@ import edu.dlsu.mips.util.SystemUtils;
 
 public class PipelineProcessorImpl implements PipelineProcessor {
 
+	private static final String SET = "1";
+	private static final String NOT_SET = "0";
 	private static final String LD_OPCODE_OFFSET = "8";
+	private Queue<Instruction> instructions;
 
 	@Override
-	public void processInstruction(Instruction instruction)
+	public ProcessStatus processInstruction(Instruction instruction)
 			throws JumpAddressException, OperandException, StorageInitializationException, RegisterAddressOverFlowException,
 			TrapException, OpcodeNotSupportedException, MemoryAddressOverFlowException {
+		if (!"".equals(instruction.getInstruction())) {
+			instructions.add(instruction);
+		}
+		return runMIPSCycle();
+	}
+	
+	private ProcessStatus runMIPSCycle() throws JumpAddressException, OperandException, OpcodeNotSupportedException, StorageInitializationException,
+			RegisterAddressOverFlowException, MemoryAddressOverFlowException, TrapException {
 		incrementSystemClock();
 		processWB();
 		processMem();
 		processExe();
 		processID();
-		processIF(instruction);
+		if (!instructions.isEmpty()) {
+			processIF(instructions.poll());
+		}
+		if (SystemUtils.hasActiveProcess()) {
+			return ProcessStatus.ONGOING;
+		}
+		return ProcessStatus.END;
 	}
 
 	private void incrementSystemClock() {
@@ -74,6 +94,12 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 			} else if (isALUInstruction(opcode)) {
 				MIPSRegisters.MEMWBIR = MIPSRegisters.EXMEMIR;
 				MIPSRegisters.MEMWBALUOUTPUT = MIPSRegisters.EXMEMALUOUTPUT;
+			} else if (opcode.equals("BNEZ") || opcode.equals("J")) {
+				if (MIPSRegisters.EXMEMCOND.equals(SET)) {
+					MIPSRegisters.PC = MIPSRegisters.EXMEMALUOUTPUT;
+					SystemUtils.removeFromActiveProcess(PipelineStage.ID);
+					SystemUtils.removeFromActiveProcess(PipelineStage.IF);
+				}
 			}
 			memProcess.logProcessClocking();
 			memProcess.incrementStage();
@@ -89,31 +115,27 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 			if (opcode.equals("DADD")) {
 				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
 				MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.DADD(instructionSet.getRs(), instructionSet.getRt());
-				MIPSRegisters.EXMEMCOND = "0";
+				MIPSRegisters.EXMEMCOND = NOT_SET;
 			} else if (opcode.equals("DSUB")) {
 				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
 				MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.DSUB(instructionSet.getRs(), instructionSet.getRt());
-				MIPSRegisters.EXMEMCOND = "0";
+				MIPSRegisters.EXMEMCOND = NOT_SET;
 			} else if (opcode.equals("XOR")) {
 				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
 				MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.XOR(instructionSet.getRs(), instructionSet.getRt());
-				MIPSRegisters.EXMEMCOND = "0";
+				MIPSRegisters.EXMEMCOND = NOT_SET;
 			} else if (opcode.equals("SLT")) {
 				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
 				MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.SLT(instructionSet.getRs(), instructionSet.getRt());
-				MIPSRegisters.EXMEMCOND = "0";
+				MIPSRegisters.EXMEMCOND = NOT_SET;
 			} else if (opcode.equals("AND")) {
 				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
 				MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.AND(instructionSet.getRs(), instructionSet.getRt());
-				MIPSRegisters.EXMEMCOND = "0";
-			} else if (opcode.equals("BNEZ")) {
-				Integer aluOutput = Integer.parseInt(MIPSRegisters.IDEXNPC, 2) + Integer.parseInt(MIPSRegisters.IDEXIMM, 2);
-				MIPSRegisters.EXMEMALUOUTPUT = Integer.toBinaryString(aluOutput);
-				MIPSRegisters.EXMEMCOND = Integer.parseInt(MIPSRegisters.IDEXA, 2) != 0? "1" : "0";
+				MIPSRegisters.EXMEMCOND = NOT_SET;
 			} else if (opcode.equals("SD")) {
 				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
 				MIPSRegisters.EXMEMB = MIPSRegisters.IDEXB;
-				MIPSRegisters.EXMEMCOND = "0";
+				MIPSRegisters.EXMEMCOND = NOT_SET;
 			} else if (opcode.equals("LD")) {
 				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
 				Integer aluOutput = Integer.parseInt(MIPSRegisters.IDEXA, 2) + Integer.parseInt(MIPSRegisters.IDEXIMM, 2);
@@ -121,9 +143,14 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 			} else if (opcode.equals("DADDI")) {
 				MIPSRegisters.EXMEMIR = MIPSRegisters.IDEXIR;
 				MIPSRegisters.EXMEMALUOUTPUT = InstructionRunner.DADDI(instructionSet.getRs(), instructionSet.getImm());
-				MIPSRegisters.EXMEMCOND = "0";
+				MIPSRegisters.EXMEMCOND = NOT_SET;
+			} else if (opcode.equals("BNEZ")) {
+				Integer aluOutput = Integer.parseInt(MIPSRegisters.IDEXNPC, 2) + Integer.parseInt(MIPSRegisters.IDEXIMM, 2);
+				MIPSRegisters.EXMEMALUOUTPUT = Integer.toBinaryString(aluOutput);
+				MIPSRegisters.EXMEMCOND = Integer.parseInt(MIPSRegisters.IDEXA, 2) != 0? SET : NOT_SET;
 			} else if (opcode.equals("J")) {
-				
+				MIPSRegisters.EXMEMALUOUTPUT = retrieveJumpInstruction(instructionSet);
+				MIPSRegisters.EXMEMCOND = SET;
 			}
 		}
 	}
@@ -147,14 +174,7 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 		MIPSRegisters.IFIDIR = ifProcess.getInstructionSet().getHexInstruction();
 		String nextPC = incrementProgramCounter();
 		MIPSRegisters.IFIDNPC = nextPC;
-		InstructionSet instructionSet = ifProcess.getInstructionSet();
-		if (instructionSet.getOpcode().equals("J")) {
-			MIPSRegisters.PC = retrieveJumpInstruction(instructionSet);
-		} else if (instructionSet.getOpcode().equals("BNEZ")) {
-			MIPSRegisters.PC = retrieveBranchInstruction(instructionSet);
-		} else {
-			MIPSRegisters.PC = nextPC;
-		}
+		MIPSRegisters.PC = nextPC;
 		ifProcess.logProcessClocking();
 		ifProcess.incrementStage();
 	}
@@ -166,10 +186,6 @@ public class PipelineProcessorImpl implements PipelineProcessor {
 	private String retrieveJumpInstruction(InstructionSet instructionSet) {
 		String binaryInstruction = instructionSet.getBinaryInstruction().substring(6,31);
 		return BitStringUtils.shiftLeft(binaryInstruction, 2);
-	}
-
-	private String retrieveBranchInstruction(InstructionSet instructionSet) {
-		return null;
 	}
 
 	private PipelineProcess buildPipelineProcess(Instruction instruction)
