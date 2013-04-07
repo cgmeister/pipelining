@@ -267,3 +267,4 @@ Library/*
 !Library/metadata/
 /Client/Temp
 
+/Client/Temp/UnityLockfile
