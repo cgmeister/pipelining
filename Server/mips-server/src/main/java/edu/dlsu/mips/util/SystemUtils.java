@@ -20,6 +20,16 @@ public class SystemUtils {
 	private static boolean hasDataHazard;
 	private static int targetLine;
 	
+	public static void initialize() {
+		clockCycle = 0;
+		activeProcesses = new ArrayList<PipelineProcess>();
+		allProcesses = new ArrayList<PipelineProcess>();
+		dataHazardStack = new HashSet<String>();
+		isPCChanged = false;
+		hasDataHazard = false;
+		targetLine = 0;
+	}
+	
 	public static void addToAllProcess(PipelineProcess pipelineProcess) {
 		allProcesses.add(pipelineProcess);
 	}
