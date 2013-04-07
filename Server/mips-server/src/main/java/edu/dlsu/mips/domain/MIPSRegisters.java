@@ -10,6 +10,7 @@ public class MIPSRegisters {
 	public static String IDEXA;
 	public static String IDEXB;
 	public static String IDEXIMM;
+	public static String IDEXNPC;
 
 	public static String EXMEMIR;
 	public static String EXMEMALUOUTPUT;

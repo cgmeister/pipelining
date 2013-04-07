@@ -53,7 +53,7 @@ public class InstructionSetBuilder {
 		opcodeSubValue.put("AND", 36);
 	}
 
-	public static InstructionSet buildOpcode(String instruction)
+	public static InstructionSet buildInstructionSet(String instruction)
 			throws JumpAddressException, OperandException, OpcodeNotSupportedException {
 		String[] tokens = instruction.split(" ");
 		InstructionSet instructionSet = new InstructionSet();

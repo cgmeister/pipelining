@@ -7,6 +7,7 @@ import org.mockito.Mockito;
 import edu.dlsu.mips.domain.Instruction;
 import edu.dlsu.mips.domain.InstructionSet;
 import edu.dlsu.mips.exception.JumpAddressException;
+import edu.dlsu.mips.exception.MemoryAddressOverFlowException;
 import edu.dlsu.mips.exception.OpcodeNotSupportedException;
 import edu.dlsu.mips.exception.OperandException;
 import edu.dlsu.mips.exception.RegisterAddressOverFlowException;
@@ -20,12 +21,12 @@ public class PipelineProcessorTest {
 	@Test
 	@Ignore
 	public void shouldBuildOpcode() throws JumpAddressException, OperandException, StorageInitializationException, 
-	RegisterAddressOverFlowException, TrapException, OpcodeNotSupportedException{
+	RegisterAddressOverFlowException, TrapException, OpcodeNotSupportedException, MemoryAddressOverFlowException{
 		PipelineProcessor pipelineProcessor = new PipelineProcessorImpl();
 		Instruction instruction = Mockito.mock(Instruction.class);
 		
 		pipelineProcessor.processInstruction(instruction);
-		InstructionSet actual = InstructionSetBuilder.buildOpcode(instruction.getInstruction());
+		InstructionSet actual = InstructionSetBuilder.buildInstructionSet(instruction.getInstruction());
 	}
 
 }

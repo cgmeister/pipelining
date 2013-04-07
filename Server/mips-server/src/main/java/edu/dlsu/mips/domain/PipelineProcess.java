@@ -1,13 +1,18 @@
 package edu.dlsu.mips.domain;
 
+import java.util.Map;
+
+import edu.dlsu.mips.util.SystemUtils;
+
 public class PipelineProcess {
 
 	private PipelineStage pipelineStage;
-	private InstructionSet opcode;
+	private InstructionSet instructionSet;
+	private Map<Integer, String> processClocking;
 
-	private PipelineProcess(InstructionSet opcode) {
+	private PipelineProcess(InstructionSet instructionSet) {
 		this.pipelineStage = PipelineStage.IF;
-		this.opcode = opcode;
+		this.instructionSet = instructionSet;
 	}
 
 	public static PipelineProcess newInstance(InstructionSet opcode) {
@@ -25,13 +30,17 @@ public class PipelineProcess {
 			pipelineStage = PipelineStage.WB;
 		}
 	}
-
-	public InstructionSet getOpcode() {
-		return opcode;
+	
+	public void logProcessClocking() {
+		processClocking.put(SystemUtils.clockCycle, pipelineStage.name());
 	}
 
-	public void setOpcode(InstructionSet opcode) {
-		this.opcode = opcode;
+	public InstructionSet getInstructionSet() {
+		return instructionSet;
+	}
+
+	public void setInstructionSet(InstructionSet instructionSet) {
+		this.instructionSet = instructionSet;
 	}
 
 	public PipelineStage getPipelineStage() {
