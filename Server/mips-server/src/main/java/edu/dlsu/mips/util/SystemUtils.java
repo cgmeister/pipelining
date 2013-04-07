@@ -40,6 +40,9 @@ public class SystemUtils {
 		return null;
 	}
 	
+	public static boolean hasActiveProcess() {
+		return !activeProcesses.isEmpty();
+	}
 	
 	public static String incrementPc(String currentPc){
 		int pcIntVal = Integer.parseInt(currentPc,2);
