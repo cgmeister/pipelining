@@ -15,9 +15,16 @@ public class IDEController : MonoBehaviour {
 	public void init(){
 		initController();
 		addListeners();
+		setMockData();
 	}
 	
+	private void setMockData(){
+		_ideProxy.getMockJsonFile();
+	}
+	
+	
 	private void addListeners(){
+		Debug.Log("Added Listeners");
 		IDEEmissaryList.textChangedEmissary.add(onInputTextChanged);
 		IDEEmissaryList.validationErrorEmissary.add(onValidationErrorFound);
 		IDEEmissaryList.updateMemory.add(onMemoryUpdate);
@@ -57,13 +64,12 @@ public class IDEController : MonoBehaviour {
 				_highlightHidden = false;
 			} else {
 				Debug.Log("update");
-				_ideMediator.updateHighlight(_ideProxy.IdeDO.currentInstIndex+1);
+				_ideMediator.updateHighlight(checkForLastIndex());
 			}
-						
+			
 			_ideProxy.setInstrList(_validatorLogic.InstList);
 			sendInstruction();
 			_ideProxy.setCurrentIndex(_ideProxy.IdeDO.currentInstIndex+1);
-			
 		} else {
 			Debug.Log("hide");
 			_ideMediator.hideHighlight();
@@ -76,6 +82,25 @@ public class IDEController : MonoBehaviour {
 		}
 	}
 	
+	private int checkForLastIndex(){
+		int index = _ideProxy.IdeDO.currentInstIndex;
+		int len = _ideProxy.IdeDO.tempInstList.Count;
+		int lineNum = 0;
+		if(len > 1){
+			string lastInstr = _ideProxy.IdeDO.tempInstList[index-1];
+			string[] strArr = lastInstr.Split(new string[]{" "}, StringSplitOptions.None);
+			if (strArr[0] == "J"){
+				lineNum = Convert.ToInt32(strArr[strArr.Length-2]);
+			} else if(_ideProxy.IdeDO.jumpFromInstruction) {
+				lineNum = index;
+				_ideProxy.setJumpFromInstr(false);
+			} else {
+				lineNum = index + 1;
+			}
+		}
+		return lineNum;
+	}
+	
 	private void sendInstruction(){
 		if (_ideProxy.IdeDO.tempInstList.Count > 0){
 			Debug.Log(_ideProxy.IdeDO.currentInstIndex);
@@ -83,6 +108,7 @@ public class IDEController : MonoBehaviour {
 			if (_ideProxy.IdeDO.currentInstIndex < _ideProxy.IdeDO.tempInstList.Count){
 				string str = _ideProxy.IdeDO.tempInstList[_ideProxy.IdeDO.currentInstIndex];
 				Debug.Log("Request Sent");
+				_ideMediator.updateErrorViewLabel("Instruction Sent: " + str);
 				_ideProxy.sendInstruction(str);
 			}
 		}
@@ -96,12 +122,22 @@ public class IDEController : MonoBehaviour {
 			_ideMediator.resetErrorLog();
 			_ideProxy.setInstrList(_validatorLogic.InstList);
 			_ideProxy.sendInstructionList(_ideProxy.IdeDO.tempInstList);
+			setInstructionListView();
 		} else {
 			ErrorDC err = new ErrorDC();
 			err.errorType = ErrorType.ERROR_0081_SINGLEEXECUTION_ERRORPERSISTS;
 			_ideProxy.addErrorLog(err);
 			_ideMediator.updateErrorLogs(_ideProxy.IdeDO.errorList);
 		}
+	}
+	
+	private void setInstructionListView(){
+		int len = _ideProxy.IdeDO.tempInstList.Count;
+		string str = "Instruction Set: \n";
+		for (int x=0; x<len; x++){
+			str += _ideProxy.IdeDO.tempInstList[x] + "\n";
+		}
+		_ideMediator.updateErrorViewLabel(str);
 	}
 	
 	private bool checkTimeToValidate(string str, bool inCompile){	
@@ -125,6 +161,7 @@ public class IDEController : MonoBehaviour {
 	}
 	
 	private void onOpcodeUpdate(string str){
+		Debug.Log("opcode Updated");
 		_ideMediator.updateViewLabel(TabType.OPCODE, str);
 	}
 	
@@ -167,6 +204,7 @@ public class IDEController : MonoBehaviour {
 		_ideProxy.init();
 		
 		_validatorLogic = new Validator();
+	
 	}
 	
 	private void destroy(){

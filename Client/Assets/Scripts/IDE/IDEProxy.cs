@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.IO;
 
 public class IDEProxy {
 	
@@ -19,6 +20,7 @@ public class IDEProxy {
 		_ideDO.tempInstList = new List<string>();
 		
 		_ideDO.currentTab = TabType.OPCODE;
+		//setMockFileAndDir();
 	}
 
 	public void addErrorLog(ErrorDC errItem){
@@ -132,23 +134,27 @@ public class IDEProxy {
 	
 	#region method calls from javascript
 	private void updatedMemory(string str){
-		_ideDO.memoryContent = str;
-		IDEEmissaryList.updateMemory.dispatch(str);
+		_ideDO.memoryHashTable = (Hashtable)MiniJSON.jsonDecode(str);
+		_ideDO.memoryContent = parseHashTable(_ideDO.memoryHashTable);
+		IDEEmissaryList.updateMemory.dispatch(_ideDO.memoryContent);
 	}
 	
 	private void updatedOpcode(string str){
-		_ideDO.opcodeContent = str;
-		IDEEmissaryList.updateOpcode.dispatch(str);
+		_ideDO.opcodeHashTable = (Hashtable)MiniJSON.jsonDecode(str);
+		_ideDO.opcodeContent = parseHashTable(_ideDO.opcodeHashTable);
+		IDEEmissaryList.updateOpcode.dispatch(_ideDO.opcodeContent );
 	}
 	
 	private void updatedPiplineMap(string str){
-		_ideDO.pipelineMapContent = str;
-		IDEEmissaryList.updatePipeline.dispatch(str);
+		_ideDO.pipelineHashTable = (Hashtable)MiniJSON.jsonDecode(str);
+		_ideDO.pipelineMapContent = parseHashTable(_ideDO.pipelineHashTable);
+		IDEEmissaryList.updatePipeline.dispatch(_ideDO.pipelineMapContent);
 	}
 	
 	private void updatedRegister(string str){
-		_ideDO.registerContent = str;
-		IDEEmissaryList.updateRegister.dispatch(str);
+		_ideDO.registerHashTable = (Hashtable)MiniJSON.jsonDecode(str);
+		_ideDO.registerContent = parseHashTable(_ideDO.registerHashTable);
+		IDEEmissaryList.updateRegister.dispatch(_ideDO.registerContent);
 	}
 	#endregion method calls from javascript
 	
@@ -183,6 +189,37 @@ public class IDEProxy {
 	
 	public void setInstrList(List<string> instList){
 		_ideDO.tempInstList = instList;
+	}
+	
+	public void setJumpFromInstr(bool val){
+		_ideDO.jumpFromInstruction = val;
+	}
+	
+	private void setMockFileAndDir(){
+		LocalComms.writeJSONFromFile("testing", Application.dataPath, "Opcode.json", "Scripts/IDE/Data/JsonFiles/");
+		LocalComms.writeJSONFromFile("testing", Application.dataPath, "Memory.json", "Scripts/IDE/Data/JsonFiles/");
+		LocalComms.writeJSONFromFile("testing", Application.dataPath, "Register.json", "Scripts/IDE/Data/JsonFiles/");
+		LocalComms.writeJSONFromFile("testing", Application.dataPath, "PipelineMap.json", "Scripts/IDE/Data/JsonFiles/");
+	}
+	
+	public void getMockJsonFile(){
+		_ideDO.opcodeHashTable = (Hashtable) LocalComms.readJSONFromFileToObject(Application.dataPath, "Opcode.json", "Scripts/IDE/Data/JsonFiles/");
+		_ideDO.opcodeContent = parseHashTable(_ideDO.opcodeHashTable);
+		IDEEmissaryList.updateOpcode.dispatch(_ideDO.opcodeContent );
+	}
+	
+	private string parseHashTable(Hashtable opcodeHash){
+		string str = "";
+		foreach (DictionaryEntry  de in opcodeHash){
+			//Debug.Log(de.Key + " : " + de.Value);
+			Hashtable opcodeHashConents = (Hashtable)de.Value;
+			foreach (DictionaryEntry  de2 in opcodeHashConents){
+				//Debug.Log(de2.Key + " : " + de2.Value);
+				str += de2.Key + ": " + de2.Value + "\n";
+			}
+		}
+		//Debug.Log(str);
+		return str;
 	}
 }
 	

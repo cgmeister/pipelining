@@ -20,4 +20,11 @@ public class IDEDO {
 	public bool registerHasBeenRequested = false;
 	public bool pipelineHasBeenRequested = false;
 	public bool opcodeHasBeenRequested = false;
+	
+	public bool jumpFromInstruction = false;
+	
+	public Hashtable opcodeHashTable = new Hashtable();
+	public Hashtable memoryHashTable = new Hashtable();
+	public Hashtable pipelineHashTable = new Hashtable();
+	public Hashtable registerHashTable = new Hashtable();
 }

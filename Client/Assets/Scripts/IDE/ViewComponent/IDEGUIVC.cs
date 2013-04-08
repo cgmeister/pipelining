@@ -22,6 +22,7 @@ public class IDEGUIVC {
 	public const string BUTTON_MEMORYREQUESTBUTTON = "Memory Request Button";
 	
 	public const string INPUT_ERRORONCOMPILE = "Error On Compile CheckBox";
+	public const string INPUT_LINENUM = "LineNum";
 	
 	public const string CAMERA = "Camera";
 	
@@ -41,6 +42,7 @@ public class IDEGUIVC {
 	public GameObject memoryEndInput;
 	public GameObject requestButton;
 	public GameObject errorOnCompile;
+	public GameObject lineNumLabel;
 	
 	public void initGUIComponents(){
 		errorPanel = GameObject.Find(OUTPUT_ERRORPANEL);
@@ -63,6 +65,8 @@ public class IDEGUIVC {
 		inputBackHighlight = GameObject.Find(INPUT_BACKHIGHLIGHT);
 		
 		errorOnCompile = GameObject.Find(INPUT_ERRORONCOMPILE);
+		
+		lineNumLabel = GameObject.Find(INPUT_LINENUM);
 		
 		camera = GameObject.Find(CAMERA);
 	}

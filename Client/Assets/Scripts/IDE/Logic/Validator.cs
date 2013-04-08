@@ -77,7 +77,7 @@ public class Validator {
 				if (strArr.Length > 1){
 					string paramStr = strArr[1];
 					paramStr = paramStr.Replace(" ", "");
-					Debug.Log(paramStr);
+					//Debug.Log(paramStr);
 					string[] paramArr = paramStr.Split(new string[]{","}, StringSplitOptions.None);
 					
 					instType = getInststructionType(opcodeType);

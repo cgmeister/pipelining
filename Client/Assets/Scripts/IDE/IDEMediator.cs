@@ -108,7 +108,7 @@ public class IDEMediator : MonoBehaviour {
 		_ideGUIVC.initGUIComponents();
 		
 		_inputView = gameObject.AddComponent<InputView>();
-		_inputView.init(_ideGUIVC.inputPanel, _ideGUIVC.singleButton, _ideGUIVC.fullButton, _ideGUIVC.camera, _ideGUIVC.inputBackHighlight, _ideGUIVC.resetButton, _ideGUIVC.errorOnCompile);
+		_inputView.init(_ideGUIVC.inputPanel, _ideGUIVC.singleButton, _ideGUIVC.fullButton, _ideGUIVC.camera, _ideGUIVC.inputBackHighlight, _ideGUIVC.resetButton, _ideGUIVC.errorOnCompile, _ideGUIVC.lineNumLabel);
 		
 		_registerView = gameObject.AddComponent<RegisterView>();
 		_registerView.init(_ideGUIVC.outputPanel, _ideGUIVC.registerTabButton);
@@ -164,6 +164,10 @@ public class IDEMediator : MonoBehaviour {
 		_errorView.setErrorLabel(str);
 	}
 	
+	public void updateErrorViewLabel(string str){
+		_errorView.setErrorLabel(str);
+	}
+	
 	public void resetErrorLog(){
 		_errorView.setErrorLabel("");
 	}
@@ -175,6 +179,7 @@ public class IDEMediator : MonoBehaviour {
 				break;
 			}
 			case TabType.OPCODE:{
+				Debug.Log("Updated opcode view");
 				_opcodeView.setOpcodeLabel(str);
 				break;
 			}

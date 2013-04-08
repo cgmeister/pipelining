@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class InputView : MonoBehaviour {
 	
@@ -10,6 +11,7 @@ public class InputView : MonoBehaviour {
 	private GameObject _backHighlightGO;
 	private GameObject _resetGO;
 	private GameObject _errorOnCompileGO;
+	private GameObject _linNumGo;
 	
 	private UIInput _input;
 	private UILabel _inputLabel;
@@ -17,6 +19,8 @@ public class InputView : MonoBehaviour {
 	private UIDraggablePanel _inputDraggable;
 	private int currentIndex;
 	private UICheckbox _errorOnCompileCheckBox;
+	private UILabel _lineNumLabel;
+	private int _lineNumCtr = 1;
 	
 	private Vector3 lineNumPos;
 	
@@ -40,6 +44,14 @@ public class InputView : MonoBehaviour {
 
 	private void OnSubmit(){
 		_input.text += "\n";
+		string[] strArr = _input.text.Split(new string[]{"\r\n", "\n"}, StringSplitOptions.None);
+		string[] lineNumArr = _lineNumLabel.text.Split(new string[]{"\r\n", "\n"}, StringSplitOptions.None);
+		
+		if (lineNumArr.Length <= strArr.Length){
+			_lineNumCtr += 1;
+			_lineNumLabel.text += "\n" + _lineNumCtr;
+		}
+		
 		//_input.text = _input.text.Substring(0, _input.text.Length - 1);
 		if (_inputDraggable.verticalScrollBar.barSize < 1){
 			_inputDraggable.verticalScrollBar.scrollValue = 1.2f;
@@ -49,16 +61,29 @@ public class InputView : MonoBehaviour {
 	
 	private void onTextChanged(GameObject go, string str){
 		string inpStr = _input.text;
-		IDEEmissaryList.textChangedEmissary.dispatch(inpStr);
+		IDEEmissaryList.textChangedEmissary.dispatch(str);
+	}
+	
+	private void updateLineNumLabel(){
+		_lineNumLabel.text = "";
+		string str  = "";
+		string[] strArr = _input.text.Split(new string[]{"\r\n", "\n"}, StringSplitOptions.None);
+		string[] lineNumArr = _lineNumLabel.text.Split(new string[]{"\r\n", "\n"}, StringSplitOptions.None);
+		for(int x=0; x<strArr.Length; x++){
+			str += lineNumArr[x];
+		}
+		Debug.Log(str);
+		_lineNumLabel.text = str;
 	}
 
-	public void init(GameObject inputGo, GameObject singleGO, GameObject fullGO, GameObject cameraGO, GameObject backHighlightGO, GameObject resetGO, GameObject errorOnCompileGO){	
+	public void init(GameObject inputGo, GameObject singleGO, GameObject fullGO, GameObject cameraGO, GameObject backHighlightGO, GameObject resetGO, GameObject errorOnCompileGO, GameObject lineNumGO){	
 		_singleButtonGO = singleGO;
 		_fullButtonGO = fullGO;
 		_inputGO = inputGo;
 		_cameraGO = cameraGO;
 		_backHighlightGO = backHighlightGO;
 		_errorOnCompileGO = errorOnCompileGO;
+		_linNumGo = lineNumGO;
 		_resetGO = resetGO;
 		initGUI();
 		addListeners();
@@ -71,6 +96,7 @@ public class InputView : MonoBehaviour {
 		_uiCamera = _cameraGO.GetComponent<UICamera>();
 		_inputDraggable = _input.GetComponent<UIDraggablePanel>();
 		_errorOnCompileCheckBox = _errorOnCompileGO.GetComponent<UICheckbox>();
+		_lineNumLabel = _linNumGo.GetComponent<UILabel>();
 		lineNumPos = new Vector3(570,0,-35);
 	}
 	
@@ -127,6 +153,8 @@ public class InputView : MonoBehaviour {
 	
 	private void onResetClick(GameObject go){
 		_input.text = "";
+		_lineNumCtr = 1;
+		_lineNumLabel.text = "1";
 		resetButtonEmissary.dispatch();
 	}
 		
