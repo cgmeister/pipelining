@@ -5,9 +5,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import org.apache.commons.logging.impl.AvalonLogger;
-import org.codehaus.jackson.map.ObjectMapper.DefaultTyping;
-
 import edu.dlsu.mips.domain.PipelineProcess;
 import edu.dlsu.mips.domain.PipelineStage;
 import edu.dlsu.mips.util.SystemUtils;
@@ -38,14 +35,16 @@ public class PipelineDTO {
 		while(iter.hasNext()){
 			PipelineProcess pipelineProcess = (PipelineProcess) iter.next();
 			PipelineStage pipelineStage = decrementStage(pipelineProcess.getPipelineStage());
-			arrPipelineStage = pipelineMap.get(pipelineProcess.getInstructionSet().getHexInstruction());
+			String hexCode = pipelineProcess.getInstructionSet().getHexInstruction();
+			hexCode += " " + pipelineProcess.getInstructionSet().getInstructionLine();
+			arrPipelineStage = pipelineMap.get(hexCode);
 			if(arrPipelineStage == null){
 				arrPipelineStage = new ArrayList<PipelineStage>();
 				arrPipelineStage.add(pipelineStage);
-				pipelineMap.put(pipelineProcess.getInstructionSet().getHexInstruction(), arrPipelineStage);
+				pipelineMap.put(hexCode, arrPipelineStage);
 			} else {
 				arrPipelineStage.add(pipelineStage);
-				pipelineMap.put(pipelineProcess.getInstructionSet().getHexInstruction(), arrPipelineStage);
+				pipelineMap.put(hexCode, arrPipelineStage);
 			}
 		}
 		
@@ -58,11 +57,15 @@ public class PipelineDTO {
 		iter = allProcess.iterator(); 
 		while(iter.hasNext()){
 			PipelineProcess pipelineProcess = (PipelineProcess) iter.next();
-			arrPipelineStage = pipelineMap.get(pipelineProcess.getInstructionSet().getHexInstruction());
+			String hexCode = pipelineProcess.getInstructionSet().getHexInstruction();
+			hexCode += " " + pipelineProcess.getInstructionSet().getInstructionLine();
+			arrPipelineStage = pipelineMap.get(hexCode);
+			
+			
 			if(arrPipelineStage != null){
 				if(!activeProcess.contains(pipelineProcess)){
 					arrPipelineStage.add(PipelineStage.WB);
-					pipelineMap.put(pipelineProcess.getInstructionSet().getHexInstruction(), arrPipelineStage);
+					pipelineMap.put(hexCode, arrPipelineStage);
 				}
 			}
 			
