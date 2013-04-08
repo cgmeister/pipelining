@@ -18,6 +18,8 @@ public class InputView : MonoBehaviour {
 	private int currentIndex;
 	private UICheckbox _errorOnCompileCheckBox;
 	
+	private Vector3 lineNumPos;
+	
 	Vector2 scrollVect = new Vector2(1,1);
 	
 	public Emissary resetButtonEmissary = new Emissary();
@@ -69,7 +71,34 @@ public class InputView : MonoBehaviour {
 		_uiCamera = _cameraGO.GetComponent<UICamera>();
 		_inputDraggable = _input.GetComponent<UIDraggablePanel>();
 		_errorOnCompileCheckBox = _errorOnCompileGO.GetComponent<UICheckbox>();
+		lineNumPos = new Vector3(570,0,-35);
+	}
+	
+	public void updateHighLight(int lineNum){
+		Debug.Log("highlight updated");
+		lineNumPos.y = (lineNum * -10) - 68;
+		//Debug.Log(lineNum + ":" + lineNumPos.x);
+		//Debug.Log(lineNum + ":" + lineNumPos.y);
+		//Debug.Log(lineNum + ":" + lineNumPos.z);
+		_backHighlightGO.transform.localPosition = lineNumPos;
+		_backHighlightGO.GetComponent<UISlicedSprite>().spriteName = "IDE_0003_IDE_Button_Full_Disabled";
+		_backHighlightGO.GetComponent<UISlicedSprite>().spriteName = "IDE_0003_IDE_Button_Full_Enabled";
+	}
+	
+	public void hideHighlight(){
+		Debug.Log("highlight hidden");
+		lineNumPos.y = 100;
+		_backHighlightGO.transform.localPosition = lineNumPos;
 		_backHighlightGO.SetActive(false);
+	}
+	
+	public void showHighlight(){
+		Debug.Log("highlight showed");
+		_backHighlightGO.SetActive(true);
+		lineNumPos.y = -68;
+		_backHighlightGO.transform.localPosition = lineNumPos;
+		_backHighlightGO.GetComponent<UISlicedSprite>().spriteName = "IDE_0003_IDE_Button_Full_Disabled";
+		_backHighlightGO.GetComponent<UISlicedSprite>().spriteName = "IDE_0003_IDE_Button_Full_Enabled";
 	}
 	
 	public void setPipelinMapLabel(string text){
@@ -93,7 +122,6 @@ public class InputView : MonoBehaviour {
 	}
 	
 	private void onCheckBoxClick(GameObject go){
-		Debug.Log(_errorOnCompileCheckBox.isChecked);
 		IDEEmissaryList.errorOnCompileButtonClickEmissary.dispatch(_errorOnCompileCheckBox.isChecked);
 	}
 	

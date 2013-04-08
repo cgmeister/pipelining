@@ -61,6 +61,7 @@ public class IDEMediator : MonoBehaviour {
 	
 	private void onResetButtonClicked(){
 		_errorView.setErrorLabel("Error logs will show here...");
+		hideHighlight();
 	}
 	
 	private void onMemoryRequest(int start, int end){
@@ -156,11 +157,15 @@ public class IDEMediator : MonoBehaviour {
 			} else if(errType == ErrorType.ERROR_0080_SINGLEEXECUTION || errType == ErrorType.ERROR_0081_SINGLEEXECUTION_ERRORPERSISTS || errType == ErrorType.ERROR_0090_FULLEXECUTION || errType == ErrorType.ERROR_0091_FULLEXECUTION_ERRORPERSISTS){
 				str += ".\n";
 			} else {
-				str += " : Line number " + errorList[x].lineNum; 
+				str += " : Line number " + errorList[x].lineNum;
 				str += ".\n";
 			}
 		}
 		_errorView.setErrorLabel(str);
+	}
+	
+	public void resetErrorLog(){
+		_errorView.setErrorLabel("");
 	}
 	
 	public void updateViewLabel(TabType type, string str){
@@ -182,5 +187,17 @@ public class IDEMediator : MonoBehaviour {
 				break;
 			}
 		}
+	}
+	
+	public void updateHighlight(int lineNum){
+		_inputView.updateHighLight(lineNum);
+	}
+	
+	public void showHighlight(){
+		_inputView.showHighlight();
+	}
+	
+	public void hideHighlight(){
+		_inputView.hideHighlight();
 	}
 }

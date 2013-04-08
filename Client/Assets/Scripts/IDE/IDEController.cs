@@ -10,6 +10,7 @@ public class IDEController : MonoBehaviour {
 	private Validator _validatorLogic;
 	
 	private bool _errorOnCompile = true;
+	private bool _highlightHidden = true;
 	
 	public void init(){
 		initController();
@@ -24,7 +25,7 @@ public class IDEController : MonoBehaviour {
 		IDEEmissaryList.updateOpcode.add(onOpcodeUpdate);
 		IDEEmissaryList.updatePipeline.add(onPipelineUpdate);
 		IDEEmissaryList.singleButtonClickEmissary.add(onSingleButtonClick);
-		IDEEmissaryList.singleButtonClickEmissary.add(onFullButtonClick);
+		IDEEmissaryList.fullButtonClickEmissary.add(onFullButtonClick);
 		IDEEmissaryList.errorOnCompileButtonClickEmissary.add(onCheckBoxClick);
 	}
 	
@@ -36,7 +37,7 @@ public class IDEController : MonoBehaviour {
 		IDEEmissaryList.updateOpcode.remove(onOpcodeUpdate);
 		IDEEmissaryList.updatePipeline.remove(onPipelineUpdate);
 		IDEEmissaryList.singleButtonClickEmissary.remove(onSingleButtonClick);
-		IDEEmissaryList.singleButtonClickEmissary.remove(onFullButtonClick);
+		IDEEmissaryList.fullButtonClickEmissary.remove(onFullButtonClick);
 		IDEEmissaryList.errorOnCompileButtonClickEmissary.remove(onCheckBoxClick);
 	}
 	
@@ -45,15 +46,28 @@ public class IDEController : MonoBehaviour {
 	}
 	
 	private void onSingleButtonClick(string inputStr){
+		Debug.Log("Instruction String: " + inputStr);
 		checkTimeToValidate(inputStr, true);
 		if (_ideProxy.IdeDO.errorList.Count == 0 && inputStr.Length > 0){
-			Debug.Log(_ideProxy.IdeDO.currentInstIndex);
 			//Debug.Log(_ideProxy.IdeDO.tempInstList[_ideProxy.IdeDO.currentInstIndex]);
+			_ideMediator.resetErrorLog();
+			if (_highlightHidden) {
+				Debug.Log("show");
+				_ideMediator.showHighlight();
+				_highlightHidden = false;
+			} else {
+				Debug.Log("update");
+				_ideMediator.updateHighlight(_ideProxy.IdeDO.currentInstIndex+1);
+			}
+						
 			_ideProxy.setInstrList(_validatorLogic.InstList);
-			string str = String.Join("", _ideProxy.IdeDO.tempInstList[_ideProxy.IdeDO.currentInstIndex]);
+			sendInstruction();
 			_ideProxy.setCurrentIndex(_ideProxy.IdeDO.currentInstIndex+1);
-			_ideProxy.sendInstruction(str);
+			
 		} else {
+			Debug.Log("hide");
+			_ideMediator.hideHighlight();
+			_highlightHidden = true;
 			_ideProxy.setCurrentIndex(0);
 			ErrorDC err = new ErrorDC();
 			err.errorType = ErrorType.ERROR_0081_SINGLEEXECUTION_ERRORPERSISTS;
@@ -62,9 +76,24 @@ public class IDEController : MonoBehaviour {
 		}
 	}
 	
+	private void sendInstruction(){
+		if (_ideProxy.IdeDO.tempInstList.Count > 0){
+			Debug.Log(_ideProxy.IdeDO.currentInstIndex);
+			Debug.Log(_ideProxy.IdeDO.tempInstList.Count);
+			if (_ideProxy.IdeDO.currentInstIndex < _ideProxy.IdeDO.tempInstList.Count){
+				string str = _ideProxy.IdeDO.tempInstList[_ideProxy.IdeDO.currentInstIndex];
+				Debug.Log("Request Sent");
+				_ideProxy.sendInstruction(str);
+			}
+		}
+	}
+	
 	private void onFullButtonClick(string inputStr){
+		_ideMediator.hideHighlight();
+		_highlightHidden = true;
 		checkTimeToValidate(inputStr, true);
 		if (_ideProxy.IdeDO.errorList.Count == 0  && inputStr.Length > 0){
+			_ideMediator.resetErrorLog();
 			_ideProxy.setInstrList(_validatorLogic.InstList);
 			_ideProxy.sendInstructionList(_ideProxy.IdeDO.tempInstList);
 		} else {
@@ -104,8 +133,13 @@ public class IDEController : MonoBehaviour {
 	}
 	#endregion update views	
 	private void onInputTextChanged(string str){
+		//Debug.Log("Input Text Changed");
 		_ideProxy.resetErrorLogs();
-		
+		_ideProxy.setCurrentIndex(0);
+		if (!_highlightHidden){
+			_ideMediator.hideHighlight();
+			_highlightHidden = true;
+		}
 		//Debug.Log(String.Join(",", procStr));
 		if (checkTimeToValidate(str, false)){
 			updateErrorOutput();

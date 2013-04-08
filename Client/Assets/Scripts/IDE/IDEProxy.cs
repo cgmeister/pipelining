@@ -16,7 +16,7 @@ public class IDEProxy {
 		_ideDO = new IDEDO();
 		_ideDO.errorList = new List<ErrorDC>();
 		_ideDO.instrList = new List<InstructionDC>();
-		_ideDO.tempInstList = new List<string[]>();
+		_ideDO.tempInstList = new List<string>();
 		
 		_ideDO.currentTab = TabType.OPCODE;
 	}
@@ -46,7 +46,7 @@ public class IDEProxy {
 		_ideDO.instrList = instrList;
 	}
 	
-	public void updateTempInstrList(List<string[]> tempIntrsList){
+	public void updateTempInstrList(List<string> tempIntrsList){
 		_ideDO.tempInstList = tempIntrsList;
 	}
 	
@@ -95,24 +95,24 @@ public class IDEProxy {
 		Debug.Log("Sent Single Instruction: " + jsonStr);
 	}
 	
-	public void sendInstructionList(List<string[]> strList){
-		List<string> newStrList = joinStringList(strList);
-		int len = newStrList.Count;
+	public void sendInstructionList(List<string> strList){
+		//List<string> newStrList = joinStringList(strList);
+		int len = strList.Count;
 		string jsnStr = "";
 		string retrnJson = "";
 		for (int x=0; x<len; x++){
-			jsnStr = decode(newStrList[x]);
+			jsnStr = decode(strList[x]);
 			sendData(jsnStr);
 			IDEEmissaryList.updateDisplayTab.dispatch();
 		}
 	}
 	
-	private List<string> joinStringList(List<string[]> strList){
+	private List<string> joinStringList(List<string> strList){
 		List<string> newStrList= new List<string>();
 		int len = newStrList.Count;
 		for (int x=0; x<len; x++){
-			string joinedStr = String.Join("", strList[x]);
-			newStrList.Add(joinedStr);
+			//string joinedStr = String.Join("", strList[x]);
+			//newStrList.Add(joinedStr);
 		}
 		return newStrList;
 	}
@@ -172,14 +172,16 @@ public class IDEProxy {
 	}
 	
 	public void setCurrentIndex(int index){
-		_ideDO.currentInstIndex = index;
+		if (index <= _ideDO.tempInstList.Count){
+			_ideDO.currentInstIndex = index;
+		}
 	}
 	
 	public void setProcessed(bool val){
 		_ideDO.hasBeenProcessed = val;
 	}
 	
-	public void setInstrList(List<string[]> instList){
+	public void setInstrList(List<string> instList){
 		_ideDO.tempInstList = instList;
 	}
 }

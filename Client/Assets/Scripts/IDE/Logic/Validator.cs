@@ -16,23 +16,23 @@ public class Validator {
 		}
 	}
 	
-	private List<string[]> _instList;
+	private List<string> _instList;
 
-	public List<string[]> InstList {
+	public List<string> InstList {
 		get {
 			return this._instList;
 		}
 	}
 	
-	public string[] processString(string str){		
-		string trimStr = str.Replace(" ", "");
-		string[] strArr = trimStr.Split(new string[]{"\r\n", "\n"}, StringSplitOptions.None);
+	public string[] processString(string str){
+		//string trimStr = str.Replace(" ", "");
+		string[] strArr = str.Split(new string[]{"\r\n", "\n"}, StringSplitOptions.None);
 		return strArr;
 	}
 
 	
 	public void validateInstructionFromStringArray (string[] strArr){
-		_instList = new List<string[]>();
+		_instList = new List<string>();
 		_jumpList = new List<string>();
 		
 		addJumpLabels(strArr);
@@ -47,14 +47,15 @@ public class Validator {
 			}
 			string[] newStrArr = new string[]{};
 			string[] jmpStrArr = strArr[x].Split(new string[]{":"}, StringSplitOptions.None);
+			string lineNum = " " + (x+1);
 			if (jmpStrArr.Length > 1){
-				newStrArr = jmpStrArr[1].Split(new string[]{""}, StringSplitOptions.None);
-				_instList.Add(newStrArr);
+				//newStrArr = jmpStrArr[1].Split(new string[]{""}, StringSplitOptions.None);
+				_instList.Add(jmpStrArr[1] + lineNum);
 				checkAndValidateJumpLabel(jmpStrArr[0], x+1, -1);
 				validateInstruction(jmpStrArr[1], x+1);
 			} else {
-				newStrArr = strArr[x].Split(new string[]{""}, StringSplitOptions.None);
-				_instList.Add(newStrArr);
+				//newStrArr = strArr[x].Split(new string[]{""}, StringSplitOptions.None);
+				_instList.Add(strArr[x] + lineNum);
 				validateInstruction(strArr[x], x+1);
 			}
 		}
@@ -63,22 +64,34 @@ public class Validator {
 	private void validateInstruction(string str, int lineNum){
 		InstructionType instType;
 		OpcodeType opcodeType;
-		string[] strArr = str.Split(new string[]{","}, StringSplitOptions.None);
-		
-		opcodeType = getOpcodeType(strArr[0]);
-		Debug.Log("OPCODE: " + opcodeType.ToString());
-		if (opcodeType != OpcodeType.Nil){
-			//Debug.Log(strArr.Length);
-			instType = getInststructionType(opcodeType);
-			if(strArr.Length > 1){
-				checkForTypes(strArr, opcodeType, lineNum, instType);
-			} else {
-				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0071_INSTRUCTION_INVALIDNUMBEROFARGUMENTS, lineNum, -2);
-				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0071_INSTRUCTION_INVALIDNUMBEROFARGUMENTS));
-			}	
+		string[] strArr = str.Split(new string[]{" "}, StringSplitOptions.None);
+		if (strArr.Length < 1){
+			IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0050_SYNTAX, lineNum, -2);
+			Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0050_SYNTAX));
 		} else {
-			IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0010_OPCODE, lineNum, 0);
-			Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0010_OPCODE));
+			opcodeType = getOpcodeType(strArr[0]);
+			Debug.Log(strArr[0]);
+			//Debug.Log("OPCODE: " + opcodeType.ToString());
+			if (opcodeType != OpcodeType.Nil){
+				//Debug.Log(strArr.Length);
+				if (strArr.Length > 1){
+					string paramStr = strArr[1];
+					paramStr = paramStr.Replace(" ", "");
+					Debug.Log(paramStr);
+					string[] paramArr = paramStr.Split(new string[]{","}, StringSplitOptions.None);
+					
+					instType = getInststructionType(opcodeType);
+					checkForTypes(paramArr, opcodeType, lineNum, instType);
+					
+				} else {
+					IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0071_INSTRUCTION_INVALIDNUMBEROFARGUMENTS, lineNum, -2);
+					Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0071_INSTRUCTION_INVALIDNUMBEROFARGUMENTS));
+				}
+			} else {
+				IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0010_OPCODE, lineNum, 0);
+				Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0010_OPCODE));
+			}
+		
 		}
 	}
 	
@@ -144,19 +157,19 @@ public class Validator {
 	}
 	
 	private void checkRType(string[] strArr, int lineNum){
-		if (strArr.Length <= 4){
+		if (strArr.Length <= 3){
+			Debug.Log("string length: " + strArr.Length);
 			bool valid = true;
 			int len = strArr.Length;
-			for (int x=0; x<len-1; x++){
+			for (int x=0; x<len; x++){
 				if(valid){
-					valid = validateRegister(strArr[x+1], lineNum, x+1);
+					valid = validateRegister(strArr[x], lineNum, x+1);
 				} else {
 					break;
 				}
-				
 			}
 		} 
-		sendNumArgError(strArr.Length, 4, lineNum);
+		sendNumArgError(strArr.Length, 3, lineNum);
 	}
 	
 	private void sendNumArgError(int len ,int max, int lineNum){
@@ -168,42 +181,42 @@ public class Validator {
 	
 	private void checkIType(string[] strArr, OpcodeType opcodeType, int lineNum){
 		int len = strArr.Length;
-		Debug.Log("ITLen: " + len);
+		//Debug.Log("ITLen: " + len);
 		switch(opcodeType){
 			case OpcodeType.BNEZ:{				
-				if (len <= 3){
-					if (len > 1) validateRegister(strArr[1], lineNum, 1); else sendNumArgError(strArr.Length, 3, lineNum);
-					if (len > 2) validateJump(strArr[2], lineNum, 2); else sendNumArgError(strArr.Length, 3, lineNum);
+				if (len <= 1){
+					if (len > 0) validateRegister(strArr[0], lineNum, 1); else sendNumArgError(strArr.Length, 2, lineNum);
+					if (len > 1) validateJump(strArr[1], lineNum, 2); else sendNumArgError(strArr.Length, 2, lineNum);
 				} else {
 					sendNumArgError(strArr.Length, 3, lineNum);
 				}
 				break;
 			}
 			case OpcodeType.LD:{
-				if (len <= 3){
-					if (len > 1) validateRegister(strArr[1], lineNum, 1); else sendNumArgError(strArr.Length, 3, lineNum);
-					if (len > 2) validateImmediateOffset(strArr[2], lineNum, 2, true); else sendNumArgError(strArr.Length, 3, lineNum);
+				if (len <= 2){
+					if (len > 0) validateRegister(strArr[0], lineNum, 1); else sendNumArgError(strArr.Length, 2, lineNum);
+					if (len > 1) validateImmediateOffset(strArr[1], lineNum, 2, true); else sendNumArgError(strArr.Length, 2, lineNum);
 				} else {
 					sendNumArgError(strArr.Length, 3, lineNum);
 				}
 				break;
 			}
 			case OpcodeType.SD:{
-				if (len <= 3){
-					if (len > 1) validateRegister(strArr[1], lineNum, 1); else sendNumArgError(strArr.Length, 3, lineNum);
-					if(len > 2)	validateImmediateOffset(strArr[2], lineNum, 2, true); else sendNumArgError(strArr.Length, 3, lineNum);
+				if (len <= 2){
+					if (len > 0) validateRegister(strArr[0], lineNum, 1); else sendNumArgError(strArr.Length, 2, lineNum);
+					if(len > 1)	validateImmediateOffset(strArr[1], lineNum, 2, true); else sendNumArgError(strArr.Length, 2, lineNum);
 				} else {
 					sendNumArgError(strArr.Length, 3, lineNum);
 				}
 				break;
 			}
 			case OpcodeType.DADDI:{
-				if (len <= 4){
-					if (len > 1) validateRegister(strArr[1], lineNum, 1); else sendNumArgError(strArr.Length, 4, lineNum);
-					if (len > 2) validateRegister(strArr[2], lineNum, 2); else sendNumArgError(strArr.Length, 4, lineNum);
-					if (len > 3) validateImmediateOffset(strArr[3], lineNum, 3, false); else sendNumArgError(strArr.Length, 4, lineNum);
+				if (len <= 3){
+					if (len > 0) validateRegister(strArr[0], lineNum, 1); else sendNumArgError(strArr.Length, 3, lineNum);
+					if (len > 1) validateRegister(strArr[1], lineNum, 2); else sendNumArgError(strArr.Length, 3, lineNum);
+					if (len > 2) validateImmediateOffset(strArr[2], lineNum, 3, false); else sendNumArgError(strArr.Length, 3, lineNum);
 				} else {
-					sendNumArgError(strArr.Length, 4, lineNum);
+					sendNumArgError(strArr.Length, 3, lineNum);
 				}
 				break;
 			}
@@ -211,11 +224,13 @@ public class Validator {
 	}
 	
 	private void checkJType(string[] strArr, int lineNum){
-		string str = strArr[1];
-		if (str.Length <= 2){
-			validateJump(strArr[1], lineNum, 1); 
+		string str = strArr[0];
+		if (strArr.Length <= 1){
+			Debug.Log("Validate Jump: " + str);
+			validateJump(strArr[0], lineNum, 1); 
 		} else {
-			sendNumArgError(strArr.Length, 2, lineNum);
+			Debug.Log("Error Jump: " + str);
+			sendNumArgError(strArr.Length, 1, lineNum);
 		}
 	}
 	
@@ -325,6 +340,7 @@ public class Validator {
 		bool valid = false;
 		string[] registerList = Enum.GetNames(typeof(RegisterType));
 		int len = registerList.Length;
+		Debug.Log("Register Len" + len);
 		for (int x=0; x<len; x++){
 			if (registerList[x] == str){
 				valid = true;
@@ -353,13 +369,13 @@ public class Validator {
 				if (regStr.Length > 0){
 					comRegStr = regStr.Remove(regStr.Length-1);
 					if (regStr[regStr.Length -1] != ')'){
-						validateRegister(regStr, lineNum, paramNum);						
+						validateRegister(regStr, lineNum, paramNum);
 						IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0040_OFFSET, lineNum, paramNum);
 						Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0040_OFFSET));
 						IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0050_SYNTAX, lineNum, paramNum);
 						Debug.Log("Validation error sent: " + Enum.GetName(typeof(ErrorType), ErrorType.ERROR_0050_SYNTAX));
 					} else {
-						validateRegister(comRegStr, lineNum, paramNum);						
+						validateRegister(comRegStr, lineNum, paramNum);					
 					}
 				} else {	
 					IDEEmissaryList.validationErrorEmissary.dispatch(ErrorType.ERROR_0020_REGISTER, lineNum, paramNum);
@@ -458,11 +474,14 @@ public class Validator {
 		int len = _jumpList.Count;
 		for (int x=0; x<len; x++){
 			if (str == _jumpList[x]){
+				Debug.Log(_jumpList[x]);
+				Debug.Log(str);
 				valid = true;
 				int instArrLen = _instList[_instList.Count-1].Length;
-				string joinStr = String.Join(",", _instList[_instList.Count-1]) + "," + lineNum;
-				string[] joinStrArr = joinStr.Split(new string[]{","}, StringSplitOptions.None);
-				 _instList[_instList.Count-1] = joinStrArr;
+				string joinStr = _instList[_instList.Count-1] + " " + (x+1);
+				//string[] joinStrArr = joinStr.Split(new string[]{","}, StringSplitOptions.None);
+				//Debug.Log(joinStrArr[0] + ":" + joinStrArr[1] + ":" + joinStrArr[2]);
+				 _instList[_instList.Count-1] = joinStr;
 				break;
 			}
 		}
